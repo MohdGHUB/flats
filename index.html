@@ -318,11 +318,11 @@ select.inp{appearance:none;cursor:pointer;padding-right:32px;background-image:no
 
 <script>
 /* ============================================================
-   MY PROPERTIES  v1.0
+   MY PROPERTIES  v1.1
    Single file. No external SDKs. Supabase via native fetch.
    ============================================================ */
 
-var VERSION  = 'v1.0';
+var VERSION  = 'v1.1';
 var SB_URL   = 'https://fdhsextgmelfnfbkrynl.supabase.co';
 var SB_KEY   = 'sb_publishable_aCTX2tjBKIBjaGmAuqIepQ_OIdbOgv-';
 var BUCKET   = 'flat-photos';
@@ -1132,6 +1132,126 @@ async function save(){
   renderDash();
   toast('Saved');
 }
+/* ============ BACKUP AND RESTORE ============ */
+var FLAT_KEYS = ['id','created_at','title','country','area','building','listing_type','status',
+  'price','currency','price_note','bedrooms','bathrooms','size_value','size_unit','floor_label',
+  'features','facilities','description','map_url','photos','cover_index','sort_order','published'];
+var SETTING_KEYS = ['site_title','site_tagline','owner_name','whatsapp_number','phone_number',
+  'email','default_currency','accent_color','about'];
+
+function pick(obj, keys){
+  var out = {}, i;
+  for (i = 0; i < keys.length; i++) {
+    if (obj[keys[i]] !== undefined) out[keys[i]] = obj[keys[i]];
+  }
+  return out;
+}
+function pad2(n){ return (n < 10 ? '0' : '') + n; }
+
+function downloadBackup(){
+  var d = new Date();
+  var photoCount = 0;
+  FLATS.forEach(function(f){ photoCount += (f.photos || []).length; });
+  var payload = {
+    app: 'my-properties',
+    format: 1,
+    app_version: VERSION,
+    exported_at: d.toISOString(),
+    counts: { flats: FLATS.length, photos: photoCount },
+    settings: pick(SETTINGS, SETTING_KEYS),
+    flats: FLATS.map(function(f){ return pick(f, FLAT_KEYS); })
+  };
+  var name = 'properties-backup-' + d.getFullYear() + pad2(d.getMonth()+1) + pad2(d.getDate())
+           + '-' + pad2(d.getHours()) + pad2(d.getMinutes()) + '.json';
+  var blob = new Blob([JSON.stringify(payload, null, 2)], { type:'application/json' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
+  toast('Backup saved: ' + FLATS.length + ' flat' + (FLATS.length === 1 ? '' : 's'));
+}
+
+function readFileText(file){
+  return new Promise(function(resolve, reject){
+    var fr = new FileReader();
+    fr.onload  = function(){ resolve(String(fr.result)); };
+    fr.onerror = function(){ reject(new Error('Could not read the file')); };
+    fr.readAsText(file);
+  });
+}
+
+async function restoreBackup(file){
+  var txt;
+  try { txt = await readFileText(file); }
+  catch(e){ return toast('Could not read that file', true); }
+
+  var data;
+  try { data = JSON.parse(txt); }
+  catch(e){ return toast('That file is not valid JSON', true); }
+
+  if (!data || data.app !== 'my-properties' || !(data.flats instanceof Array)) {
+    return toast('That is not a My Properties backup file', true);
+  }
+
+  var n = data.flats.length;
+  var when = data.exported_at ? new Date(data.exported_at).toLocaleString() : 'an unknown date';
+  var msg = 'Backup made on ' + when + '\n'
+          + 'It contains ' + n + ' flat' + (n === 1 ? '' : 's') + '.\n\n'
+          + 'Restoring REPLACES everything on the site right now.\n'
+          + 'You currently have ' + FLATS.length + ' flat' + (FLATS.length === 1 ? '' : 's') + '.\n\n'
+          + 'Continue?';
+  if (!confirm(msg)) return;
+
+  var btn = $('bkrestore');
+  if (btn) { btn.disabled = true; btn.textContent = 'Restoring...'; }
+
+  var rows = data.flats.map(function(f){
+    var r = pick(f, FLAT_KEYS);
+    if (!(r.features   instanceof Array)) r.features   = [];
+    if (!(r.facilities instanceof Array)) r.facilities = [];
+    if (!(r.photos     instanceof Array)) r.photos     = [];
+    if (r.cover_index === undefined || r.cover_index === null) r.cover_index = 0;
+    if (r.published === undefined) r.published = true;
+    return r;
+  });
+
+  var res, ids;
+
+  if (rows.length) {
+    res = await rest('flats', {
+      method:'POST',
+      body: rows,
+      headers:{ 'Prefer':'resolution=merge-duplicates,return=minimal' }
+    }, true);
+    if (res.error) {
+      if (btn) { btn.disabled = false; btn.textContent = 'Choose backup file'; }
+      return toast('Restore failed: ' + res.error, true);
+    }
+    ids = rows.map(function(r){ return r.id; }).filter(Boolean);
+    if (ids.length) {
+      res = await rest('flats?id=not.in.(' + ids.join(',') + ')', { method:'DELETE' }, true);
+    }
+  } else {
+    res = await rest('flats?id=not.is.null', { method:'DELETE' }, true);
+  }
+  if (res && res.error) {
+    if (btn) { btn.disabled = false; btn.textContent = 'Choose backup file'; }
+    return toast('Restore partly failed: ' + res.error, true);
+  }
+
+  if (data.settings) {
+    var sres = await rest('settings?id=eq.1', { method:'PATCH', body: pick(data.settings, SETTING_KEYS) }, true);
+    if (sres.error) toast('Flats restored, but settings failed: ' + sres.error, true);
+  }
+
+  try { await loadAll(); } catch(e){}
+  renderDash();
+  toast('Restored ' + rows.length + ' flat' + (rows.length === 1 ? '' : 's'));
+}
+
 function tabSettings(){
   var s = SETTINGS;
   $('tabbody').innerHTML =
@@ -1150,7 +1270,29 @@ function tabSettings(){
     + '<div class="row row-2">'
     + '<div class="field"><label>Default currency for new flats</label><select class="inp" id="s_cu">' + opts(CURRENCIES, s.default_currency) + '</select></div>'
     + '<div class="field"><label>Accent colour</label><input class="inp" id="s_ac" type="color" value="' + esc(s.accent_color || '#0f766e') + '" style="padding:4px;height:42px"></div>'
-    + '</div><div class="bar"><button class="btn btn-solid" id="ssave">Save settings</button></div></div>';
+    + '</div><div class="bar"><button class="btn btn-solid" id="ssave">Save settings</button></div></div>'
+
+    + '<div class="panel" style="max-width:620px"><h3>Backup and restore</h3>'
+    + '<p class="sub">Saves all your flats and settings to a file on your computer.</p>'
+    + '<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px">'
+    + '<button class="btn btn-solid" id="bkdown">Download backup</button>'
+    + '<button class="btn btn-ghost" id="bkrestore">Choose backup file</button>'
+    + '<input type="file" id="bkfile" accept="application/json,.json" class="hide">'
+    + '</div>'
+    + '<div style="font-size:12.5px;color:var(--ink-3);line-height:1.6">'
+    + 'The file holds every flat, all the details, and your contact settings. '
+    + 'Photos stay in cloud storage and the backup points to them, so the file is small, '
+    + 'but it cannot bring back a photo you have deleted. '
+    + 'Restoring replaces everything currently on the site, so download a fresh backup first if in doubt.'
+    + '</div></div>';
+
+  $('bkdown').onclick = downloadBackup;
+  $('bkrestore').onclick = function(){ $('bkfile').click(); };
+  $('bkfile').onchange = function(e){
+    var f = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if (f) restoreBackup(f);
+  };
 
   $('ssave').onclick = async function(){
     $('ssave').disabled = true; $('ssave').textContent = 'Saving...';
