@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>My Properties</title>
+<meta name="description" content="Available flats for sale and rent." />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="My Properties" />
+<meta property="og:description" content="Available flats for sale and rent." />
+<meta name="theme-color" content="#0f766e" />
+<style>
+:root{
+  --accent:#0f766e;
+  --accent-soft:#0f766e14;
+  --bg:#fbfbfa;
+  --surface:#ffffff;
+  --ink:#16181d;
+  --ink-2:#5b6270;
+  --ink-3:#8b93a1;
+  --line:#e7e8ec;
+  --line-2:#f1f2f5;
+  --radius:16px;
+  --shadow-sm:0 1px 2px rgba(16,20,30,.05), 0 1px 3px rgba(16,20,30,.04);
+  --shadow-md:0 4px 12px rgba(16,20,30,.07), 0 2px 4px rgba(16,20,30,.04);
+  --shadow-lg:0 24px 48px -12px rgba(16,20,30,.18);
+  --wa:#25D366;
+  --maxw:1200px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+  background:var(--bg); color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+  font-size:15px; line-height:1.5;
+}
+img{max-width:100%;display:block}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:none;background:none}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 20px}
+.hide{display:none !important}
+
+/* ---------- Header ---------- */
+header.site{
+  position:sticky;top:0;z-index:60;
+  background:rgba(251,251,250,.88);
+  backdrop-filter:saturate(180%) blur(12px);
+  border-bottom:1px solid var(--line);
+}
+.hdr{display:flex;align-items:center;gap:16px;height:64px}
+.brand{display:flex;flex-direction:column;min-width:0;flex:1}
+.brand b{font-size:17px;font-weight:700;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand .v{font-size:10.5px;opacity:.45;font-weight:600;margin-left:5px;letter-spacing:0}
+.brand span{font-size:12.5px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hdr-actions{display:flex;gap:8px;align-items:center}
+
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  height:40px;padding:0 16px;border-radius:11px;font-size:14px;font-weight:600;
+  transition:.15s ease; white-space:nowrap;
+}
+.btn:active{transform:scale(.975)}
+.btn-wa{background:var(--wa);color:#fff}
+.btn-wa:hover{filter:brightness(.94)}
+.btn-call{background:var(--accent);color:#fff}
+.btn-call:hover{filter:brightness(.92)}
+.btn-ghost{background:var(--surface);color:var(--ink);border:1px solid var(--line);box-shadow:var(--shadow-sm)}
+.btn-ghost:hover{border-color:#d5d7de}
+.btn-solid{background:var(--ink);color:#fff}
+.btn-solid:hover{filter:brightness(1.25)}
+.btn-sm{height:34px;padding:0 12px;font-size:13px;border-radius:9px}
+.btn:disabled{opacity:.5;pointer-events:none}
+.ico{width:17px;height:17px;flex:none}
+
+/* ---------- Hero ---------- */
+.hero{padding:40px 0 28px}
+.hero h1{margin:0 0 9px;font-size:31px;font-weight:800;letter-spacing:-.035em;line-height:1.15}
+.hero p{margin:0;color:var(--ink-2);font-size:15.5px;max-width:640px}
+
+/* ---------- Cards ---------- */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:22px;padding-bottom:80px}
+.card{
+  background:var(--surface);border-radius:var(--radius);overflow:hidden;
+  border:1px solid var(--line);box-shadow:var(--shadow-sm);
+  transition:.22s cubic-bezier(.4,0,.2,1);cursor:pointer;
+}
+.card:hover{box-shadow:var(--shadow-md);transform:translateY(-3px);border-color:#dcdee5}
+.card-img{position:relative;aspect-ratio:4/3;background:var(--line-2);overflow:hidden}
+.card-img img{width:100%;height:100%;object-fit:cover;transition:.4s}
+.card:hover .card-img img{transform:scale(1.04)}
+.card-img .ph{display:flex;align-items:center;justify-content:center;height:100%;color:var(--ink-3)}
+.badges{position:absolute;top:11px;left:11px;display:flex;gap:6px;flex-wrap:wrap}
+.badge{
+  padding:5px 10px;border-radius:7px;font-size:11.5px;font-weight:700;
+  letter-spacing:.02em;background:rgba(255,255,255,.94);color:var(--ink);
+  backdrop-filter:blur(6px);box-shadow:var(--shadow-sm);
+}
+.badge.available{background:#059669;color:#fff}
+.badge.reserved{background:#d97706;color:#fff}
+.badge.sold{background:#64748b;color:#fff}
+.photo-count{
+  position:absolute;bottom:11px;right:11px;padding:4px 9px;border-radius:7px;
+  background:rgba(0,0,0,.62);color:#fff;font-size:11.5px;font-weight:600;
+  display:flex;align-items:center;gap:5px;backdrop-filter:blur(4px);
+}
+.card-body{padding:15px 16px 16px}
+.card-price{font-size:19px;font-weight:800;letter-spacing:-.03em;margin-bottom:3px}
+.card-price small{font-size:12.5px;font-weight:500;color:var(--ink-3);letter-spacing:0}
+.card-title{font-size:15px;font-weight:600;margin-bottom:3px;line-height:1.35}
+.card-loc{font-size:13.5px;color:var(--ink-2);display:flex;align-items:center;gap:5px;margin-bottom:12px}
+.specs{display:flex;gap:14px;flex-wrap:wrap;padding-top:12px;border-top:1px solid var(--line-2);font-size:13.5px;color:var(--ink-2)}
+.spec{display:flex;align-items:center;gap:6px;font-weight:500}
+.spec svg{color:var(--ink-3)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:11px}
+.chip{padding:4px 9px;border-radius:6px;background:var(--accent-soft);color:var(--accent);font-size:11.5px;font-weight:600}
+.chip.more{background:var(--line-2);color:var(--ink-3)}
+
+.empty{text-align:center;padding:80px 20px;color:var(--ink-3)}
+.empty svg{margin:0 auto 16px;color:#c9cdd6}
+.empty h3{margin:0 0 6px;color:var(--ink-2);font-size:16px;font-weight:600}
+.empty p{margin:0;font-size:14px}
+
+.skel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.skel .s1{aspect-ratio:4/3;background:linear-gradient(90deg,#f1f2f5 25%,#e7e8ec 50%,#f1f2f5 75%);background-size:200% 100%;animation:sh 1.4s infinite}
+.skel .s2{height:15px;margin:16px;border-radius:5px;background:#f1f2f5}
+.skel .s3{height:12px;margin:0 16px 20px;width:60%;border-radius:5px;background:#f1f2f5}
+@keyframes sh{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* ---------- Detail ---------- */
+.detail{position:fixed;inset:0;z-index:80;background:var(--bg);overflow-y:auto;overscroll-behavior:contain}
+.detail-top{
+  position:sticky;top:0;z-index:10;background:rgba(251,251,250,.9);
+  backdrop-filter:saturate(180%) blur(12px);border-bottom:1px solid var(--line);
+}
+.detail-top .wrap{display:flex;align-items:center;gap:10px;height:60px}
+.detail-top .sp{flex:1}
+.gal{display:grid;gap:8px;grid-template-columns:2fr 1fr;margin:22px 0;border-radius:var(--radius);overflow:hidden}
+.gal-main{aspect-ratio:4/3;background:var(--line-2);cursor:zoom-in;position:relative}
+.gal-main img{width:100%;height:100%;object-fit:cover}
+.gal-side{display:grid;gap:8px;grid-template-rows:1fr 1fr}
+.gal-thumb{position:relative;background:var(--line-2);cursor:zoom-in;overflow:hidden}
+.gal-thumb img{width:100%;height:100%;object-fit:cover}
+.gal-more{
+  position:absolute;inset:0;background:rgba(0,0,0,.55);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;
+}
+.gal-single{grid-template-columns:1fr}
+.gal-single .gal-side{display:none}
+.gal-empty{
+  aspect-ratio:16/7;background:var(--line-2);border-radius:var(--radius);margin:22px 0;
+  display:flex;align-items:center;justify-content:center;color:var(--ink-3);flex-direction:column;gap:10px;
+}
+.dcols{display:grid;grid-template-columns:1fr 340px;gap:38px;padding-bottom:120px;align-items:start}
+.dtitle{font-size:27px;font-weight:800;letter-spacing:-.035em;margin:0 0 7px;line-height:1.2}
+.dloc{color:var(--ink-2);font-size:15px;display:flex;align-items:center;gap:6px;margin-bottom:18px}
+.dstats{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:26px}
+.dstat{
+  background:var(--surface);border:1px solid var(--line);border-radius:12px;
+  padding:12px 16px;min-width:92px;box-shadow:var(--shadow-sm);
+}
+.dstat b{display:block;font-size:17px;font-weight:700;letter-spacing:-.02em}
+.dstat span{font-size:12px;color:var(--ink-3);font-weight:500}
+.sec{margin-bottom:28px}
+.sec h3{font-size:16px;font-weight:700;margin:0 0 12px;letter-spacing:-.015em}
+.sec p{margin:0;color:var(--ink-2);white-space:pre-wrap;line-height:1.65;font-size:14.7px}
+.taglist{display:flex;flex-wrap:wrap;gap:8px}
+.tag{
+  display:flex;align-items:center;gap:7px;padding:8px 13px;border-radius:10px;
+  background:var(--surface);border:1px solid var(--line);font-size:13.5px;font-weight:500;
+}
+.tag svg{color:var(--accent);flex:none}
+.aside{position:sticky;top:80px}
+.pricebox{
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  padding:22px;box-shadow:var(--shadow-md);
+}
+.pricebox .p{font-size:29px;font-weight:800;letter-spacing:-.04em;line-height:1.1}
+.pricebox .pn{font-size:13.5px;color:var(--ink-3);margin-top:4px}
+.pricebox .divider{height:1px;background:var(--line-2);margin:18px 0}
+.pricebox .btn{width:100%;height:46px;font-size:15px;margin-bottom:9px}
+.pricebox .note{font-size:12.5px;color:var(--ink-3);text-align:center;margin-top:12px;line-height:1.5}
+.mapbtn{display:flex;align-items:center;gap:8px;color:var(--accent);font-weight:600;font-size:14px;margin-top:14px}
+
+.mobilebar{
+  position:fixed;bottom:0;left:0;right:0;z-index:90;display:none;gap:9px;
+  padding:11px 16px calc(11px + env(safe-area-inset-bottom));
+  background:rgba(255,255,255,.94);backdrop-filter:blur(12px);border-top:1px solid var(--line);
+}
+.mobilebar .btn{flex:1;height:46px;font-size:15px}
+
+/* ---------- Lightbox ---------- */
+.lb{position:fixed;inset:0;z-index:200;background:rgba(8,10,14,.97);display:flex;align-items:center;justify-content:center}
+.lb img{max-width:100%;max-height:100vh;object-fit:contain;user-select:none}
+.lb-x{position:absolute;top:16px;right:16px;width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.13);color:#fff;display:flex;align-items:center;justify-content:center}
+.lb-nav{position:absolute;top:50%;transform:translateY(-50%);width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,.13);color:#fff;display:flex;align-items:center;justify-content:center}
+.lb-nav:hover{background:rgba(255,255,255,.24)}
+.lb-prev{left:16px}.lb-next{right:16px}
+.lb-n{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);color:#fff;font-size:13.5px;font-weight:600;background:rgba(255,255,255,.13);padding:7px 15px;border-radius:20px}
+
+/* ---------- Admin ---------- */
+.admin{min-height:100vh;background:var(--bg)}
+.aheader{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:50}
+.aheader .wrap{display:flex;align-items:center;gap:12px;height:62px}
+.aheader b{font-size:16px;font-weight:700;letter-spacing:-.02em}
+.pill{font-size:11px;font-weight:700;background:var(--accent-soft);color:var(--accent);padding:4px 9px;border-radius:6px;letter-spacing:.03em}
+
+.login{max-width:400px;margin:0 auto;padding:80px 20px}
+.loginbox{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:30px;box-shadow:var(--shadow-md)}
+.loginbox h2{margin:0 0 6px;font-size:21px;font-weight:700;letter-spacing:-.025em}
+.loginbox>p{margin:0 0 22px;color:var(--ink-3);font-size:14px}
+
+.field{margin-bottom:16px}
+.field label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:var(--ink-2)}
+.field .hint{font-size:12px;color:var(--ink-3);font-weight:400;margin-top:5px}
+.inp{
+  width:100%;height:42px;padding:0 13px;border-radius:10px;border:1px solid var(--line);
+  background:var(--surface);outline:none;font-size:14.5px;transition:.15s;
+}
+textarea.inp{height:auto;padding:11px 13px;resize:vertical;min-height:110px;line-height:1.55}
+select.inp{appearance:none;cursor:pointer;padding-right:32px;background-image:none}
+.inp:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.row{display:grid;gap:14px}
+.row-2{grid-template-columns:1fr 1fr}
+.row-3{grid-template-columns:1fr 1fr 1fr}
+.row-price{grid-template-columns:130px 1fr}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow-sm);margin-bottom:20px}
+.panel h3{margin:0 0 4px;font-size:16px;font-weight:700;letter-spacing:-.015em}
+.panel .sub{margin:0 0 20px;font-size:13px;color:var(--ink-3)}
+
+.alist{display:flex;flex-direction:column;gap:11px;padding-bottom:60px}
+.arow{
+  display:flex;align-items:center;gap:14px;background:var(--surface);
+  border:1px solid var(--line);border-radius:13px;padding:11px;box-shadow:var(--shadow-sm);
+}
+.arow img,.arow .noimg{width:76px;height:60px;border-radius:9px;object-fit:cover;background:var(--line-2);flex:none}
+.arow .noimg{display:flex;align-items:center;justify-content:center;color:var(--ink-3)}
+.arow .meta{flex:1;min-width:0}
+.arow .meta b{display:block;font-size:14.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.arow .meta span{font-size:12.5px;color:var(--ink-3)}
+.arow .acts{display:flex;gap:7px;flex:none;flex-wrap:wrap;justify-content:flex-end}
+
+.tabs{display:flex;gap:5px;margin-bottom:22px;background:var(--line-2);padding:4px;border-radius:11px;width:fit-content}
+.tab{padding:8px 16px;border-radius:8px;font-size:13.5px;font-weight:600;color:var(--ink-2);transition:.15s}
+.tab.on{background:var(--surface);color:var(--ink);box-shadow:var(--shadow-sm)}
+
+.drop{
+  border:2px dashed var(--line);border-radius:13px;padding:30px 20px;text-align:center;
+  color:var(--ink-3);transition:.18s;cursor:pointer;background:#fcfcfd;
+}
+.drop:hover,.drop.over{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.drop b{display:block;color:var(--ink);font-size:14.5px;font-weight:600;margin-bottom:3px}
+.drop.over b{color:var(--accent)}
+
+.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:11px;margin-top:14px}
+.th{position:relative;aspect-ratio:4/3;border-radius:10px;overflow:hidden;border:1px solid var(--line);background:var(--line-2)}
+.th img{width:100%;height:100%;object-fit:cover}
+.th.cover{border:2px solid var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.th-bar{position:absolute;top:0;left:0;right:0;display:flex;gap:3px;padding:5px;background:linear-gradient(rgba(0,0,0,.45),transparent)}
+.th-b{width:26px;height:26px;border-radius:6px;background:rgba(255,255,255,.93);display:flex;align-items:center;justify-content:center;color:var(--ink);font-size:12px;font-weight:700}
+.th-b:hover{background:#fff}
+.th-b.del:hover{background:#dc2626;color:#fff}
+.th-cov{position:absolute;bottom:5px;left:5px;background:var(--accent);color:#fff;font-size:10px;font-weight:700;padding:3px 7px;border-radius:5px;letter-spacing:.03em}
+
+.optgrid{display:flex;flex-wrap:wrap;gap:7px}
+.opt{
+  padding:7px 12px;border-radius:9px;border:1px solid var(--line);background:var(--surface);
+  font-size:13px;font-weight:500;transition:.14s;display:flex;align-items:center;gap:6px;
+}
+.opt:hover{border-color:#c9cdd6}
+.opt.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(120px);
+  background:var(--ink);color:#fff;padding:12px 20px;border-radius:11px;font-size:14px;font-weight:500;
+  z-index:300;box-shadow:var(--shadow-lg);transition:.28s cubic-bezier(.4,0,.2,1);max-width:90vw;
+}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.err{background:#dc2626}
+
+.bar{
+  position:sticky;bottom:0;background:rgba(255,255,255,.95);backdrop-filter:blur(12px);
+  border-top:1px solid var(--line);padding:13px 0;margin-top:22px;display:flex;gap:10px;justify-content:flex-end;
+}
+.err{background:#fef2f2;border:1px solid #fecaca;color:#b91c1c;padding:11px 14px;border-radius:10px;font-size:13.5px;margin-bottom:16px}
+.prog{height:4px;background:var(--line-2);border-radius:3px;overflow:hidden;margin-top:12px}
+.prog div{height:100%;background:var(--accent);transition:.25s;border-radius:3px}
+
+@media(max-width:900px){
+  .dcols{grid-template-columns:1fr;gap:26px}
+  .aside{position:static}
+  .pricebox .btn{display:none}
+  .pricebox .divider{display:none}
+  .mobilebar{display:flex}
+  .detail{padding-bottom:76px}
+  .gal{grid-template-columns:1fr}
+  .gal-side{grid-template-rows:none;grid-template-columns:1fr 1fr}
+  .hero h1{font-size:25px}
+  .dtitle{font-size:22px}
+  .row-2,.row-3{grid-template-columns:1fr}
+  .hdr-actions .lbl{display:none}
+  .hdr-actions .btn{padding:0 12px}
+  .arow{flex-wrap:wrap}
+  .arow .meta{flex-basis:calc(100% - 100px)}
+}
+@media(max-width:520px){
+  .grid{grid-template-columns:1fr;gap:16px}
+  .wrap{padding:0 15px}
+}
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+<div id="toast" class="toast"></div>
+
+<script>
+/* ============================================================
+   MY PROPERTIES  v1.0
+   Single file. No external SDKs. Supabase via native fetch.
+   ============================================================ */
+
+var VERSION  = 'v1.0';
+var SB_URL   = 'https://fdhsextgmelfnfbkrynl.supabase.co';
+var SB_KEY   = 'sb_publishable_aCTX2tjBKIBjaGmAuqIepQ_OIdbOgv-';
+var BUCKET   = 'flat-photos';
+var AUTH_KEY = 'flats_auth_v1';
+
+var SETTINGS = {};
+var FLATS    = [];
+var editing  = null;
+var adminTab = 'flats';
+var lb       = { open:false, photos:[], i:0 };
+var auth     = null;
+
+try { auth = JSON.parse(localStorage.getItem(AUTH_KEY) || 'null'); } catch(e){ auth = null; }
+
+/* ---------- reference data ---------- */
+var SYM = {
+  BHD:'BD', KWD:'KD', OMR:'OMR', SAR:'SAR', AED:'AED', QAR:'QAR', JOD:'JD',
+  EGP:'E£', USD:'$', EUR:'€', GBP:'£', TRY:'₺',
+  INR:'₹', PKR:'Rs', MAD:'MAD', TND:'TND'
+};
+var CURRENCIES = [
+  ['BHD','BD  Bahraini Dinar'],['SAR','SAR  Saudi Riyal'],['AED','AED  UAE Dirham'],
+  ['KWD','KD  Kuwaiti Dinar'],['QAR','QAR  Qatari Riyal'],['OMR','OMR  Omani Rial'],
+  ['JOD','JD  Jordanian Dinar'],['EGP','E£  Egyptian Pound'],['USD','$  US Dollar'],
+  ['EUR','€  Euro'],['GBP','£  British Pound'],['TRY','₺  Turkish Lira'],
+  ['INR','₹  Indian Rupee'],['PKR','Rs  Pakistani Rupee'],['MAD','MAD  Moroccan Dirham'],
+  ['TND','TND  Tunisian Dinar']
+];
+var FEATURES = ['Duplex','Penthouse','High floor','Sea view','City view','Corner unit','Balcony','Terrace',
+  'Maid’s room','Study room','Furnished','Newly renovated','Private garden','Ground floor','Open kitchen',
+  'Walk-in closet','Ensuite bathrooms','Smart home'];
+var FACILITIES = ['Swimming pool','Gym','Games room','Covered parking','24/7 security','Elevator',
+  'Kids play area','Sauna','Steam room','BBQ area','Concierge','Landscaped garden','Tennis court',
+  'Jogging track','Pets allowed','Cinema room','Co-working space'];
+
+/* ---------- icons ---------- */
+var I = {
+  wa:'<svg class="ico" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.174.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884a9.82 9.82 0 0 1 6.99 2.896 9.82 9.82 0 0 1 2.893 6.994c-.003 5.45-4.437 9.886-9.887 9.886m8.413-18.297A11.82 11.82 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.88 11.88 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.82 11.82 0 0 0-3.48-8.413"/></svg>',
+  phone:'<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>',
+  pin:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>',
+  bed:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4v16"/><path d="M2 8h18a2 2 0 0 1 2 2v10"/><path d="M2 17h20"/><path d="M6 8v9"/></svg>',
+  bath:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6 6.5 3.5a1.5 1.5 0 0 0-3 3L6 9"/><path d="M2 12h20"/><path d="M4 12v3a4 4 0 0 0 4 4h8a4 4 0 0 0 4-4v-3"/><path d="M7 19v2"/><path d="M17 19v2"/></svg>',
+  ruler:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.3 8.7 8.7 21.3a1 1 0 0 1-1.4 0l-4.6-4.6a1 1 0 0 1 0-1.4L15.3 2.7a1 1 0 0 1 1.4 0l4.6 4.6a1 1 0 0 1 0 1.4Z"/><path d="m7.5 10.5 2 2"/><path d="m10.5 7.5 2 2"/><path d="m13.5 4.5 2 2"/><path d="m4.5 13.5 2 2"/></svg>',
+  stairs:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4v-4h4v-4h4V8h4V4"/></svg>',
+  cam:'<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>',
+  check:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+  back:'<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>',
+  share:'<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>',
+  x:'<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>',
+  left:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>',
+  right:'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>',
+  home:'<svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
+  map:'<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>'
+};
+
+/* ============ HELPERS ============ */
+function $(id){ return document.getElementById(id); }
+var app = $('app');
+
+function esc(s){
+  return String(s === null || s === undefined ? '' : s).replace(/[&<>"']/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
+}
+function uuid(){
+  if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c){
+    var r = Math.random()*16|0;
+    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+  });
+}
+function toast(msg, isErr){
+  var t = $('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (isErr ? ' err' : '');
+  clearTimeout(t._t);
+  t._t = setTimeout(function(){ t.className = 'toast'; }, 3400);
+}
+function money(v, cur){
+  if (v === null || v === undefined || v === '') return 'Price on request';
+  var n = Number(v);
+  if (!isFinite(n)) return 'Price on request';
+  return (SYM[cur] || cur || '') + ' ' + n.toLocaleString('en-US');
+}
+function locLine(f){
+  return [f.building, f.area, f.country].filter(Boolean).join(', ');
+}
+function cover(f){
+  var p = f.photos || [];
+  if (!p.length) return null;
+  return (p[f.cover_index] || p[0]).url;
+}
+function pageUrl(){ return location.origin + location.pathname; }
+function publicUrl(path){ return SB_URL + '/storage/v1/object/public/' + BUCKET + '/' + path; }
+
+function waLink(flat){
+  var num = (SETTINGS.whatsapp_number || '').replace(/\D/g,'');
+  if (!num) return null;
+  var msg = 'Hi, I am interested in a property from your website.';
+  if (flat) {
+    msg = 'Hi, I am interested in this property:\n\n'
+        + (flat.title || locLine(flat)) + '\n'
+        + money(flat.price, flat.currency) + '\n'
+        + pageUrl() + '#flat/' + flat.id;
+  }
+  return 'https://wa.me/' + num + '?text=' + encodeURIComponent(msg);
+}
+function telLink(){
+  var num = (SETTINGS.phone_number || '').replace(/[^\d+]/g,'');
+  return num ? 'tel:' + num : null;
+}
+
+/* ============ SUPABASE VIA FETCH ============ */
+function saveAuth(a){
+  auth = a;
+  if (a) localStorage.setItem(AUTH_KEY, JSON.stringify(a));
+  else localStorage.removeItem(AUTH_KEY);
+}
+function storeSession(d){
+  saveAuth({
+    access_token : d.access_token,
+    refresh_token: d.refresh_token,
+    expires_at   : Date.now() + ((d.expires_in || 3600) * 1000),
+    email        : (d.user && d.user.email) || (auth && auth.email) || ''
+  });
+}
+async function signIn(email, password){
+  var r = await fetch(SB_URL + '/auth/v1/token?grant_type=password', {
+    method:'POST',
+    headers:{ 'apikey':SB_KEY, 'Content-Type':'application/json' },
+    body: JSON.stringify({ email:email, password:password })
+  });
+  var d = await r.json().catch(function(){ return {}; });
+  if (!r.ok) return { error: d.error_description || d.msg || d.message || 'Sign in failed' };
+  storeSession(d);
+  return {};
+}
+async function refreshSession(){
+  if (!auth || !auth.refresh_token) return false;
+  var r = await fetch(SB_URL + '/auth/v1/token?grant_type=refresh_token', {
+    method:'POST',
+    headers:{ 'apikey':SB_KEY, 'Content-Type':'application/json' },
+    body: JSON.stringify({ refresh_token: auth.refresh_token })
+  });
+  if (!r.ok) { saveAuth(null); return false; }
+  var d = await r.json();
+  storeSession(d);
+  return true;
+}
+async function ensureToken(){
+  if (!auth) return false;
+  if (Date.now() > auth.expires_at - 60000) return await refreshSession();
+  return true;
+}
+function signOut(){ saveAuth(null); }
+function loggedIn(){ return !!auth; }
+
+async function api(path, opts, useAuth, retried){
+  opts = opts || {};
+  if (useAuth) { if (!(await ensureToken())) return { error:'Session expired, please sign in again' }; }
+  var headers = { 'apikey': SB_KEY };
+  var k;
+  if (opts.headers) for (k in opts.headers) headers[k] = opts.headers[k];
+  if (useAuth && auth) headers['Authorization'] = 'Bearer ' + auth.access_token;
+
+  var init = { method: opts.method || 'GET', headers: headers };
+  if (opts.raw) { init.body = opts.raw; }
+  else if (opts.body !== undefined) {
+    headers['Content-Type'] = 'application/json';
+    init.body = JSON.stringify(opts.body);
+  }
+
+  var r;
+  try { r = await fetch(SB_URL + path, init); }
+  catch(e){ return { error:'Network error. Check your internet connection.' }; }
+
+  if (r.status === 401 && useAuth && !retried) {
+    if (await refreshSession()) return api(path, opts, useAuth, true);
+    return { error:'Session expired, please sign in again' };
+  }
+  var text = await r.text();
+  var data = null;
+  if (text) { try { data = JSON.parse(text); } catch(e){ data = text; } }
+  if (!r.ok) {
+    var m = (data && (data.message || data.error || data.msg)) || ('Request failed (' + r.status + ')');
+    return { error: m };
+  }
+  return { data: data };
+}
+function rest(q, opts, useAuth){ return api('/rest/v1/' + q, opts, useAuth); }
+
+async function uploadPhoto(blob, path){
+  var headers = { 'apikey': SB_KEY, 'Content-Type':'image/jpeg', 'x-upsert':'true' };
+  if (!(await ensureToken())) return { error:'Session expired' };
+  headers['Authorization'] = 'Bearer ' + auth.access_token;
+  var r;
+  try {
+    r = await fetch(SB_URL + '/storage/v1/object/' + BUCKET + '/' + path, {
+      method:'POST', headers: headers, body: blob
+    });
+  } catch(e){ return { error:'Upload failed, check your connection' }; }
+  if (!r.ok) {
+    var d = await r.json().catch(function(){ return {}; });
+    return { error: d.message || d.error || ('Upload failed (' + r.status + ')') };
+  }
+  return { data:{ path: path } };
+}
+async function deletePhotos(paths){
+  if (!paths.length) return;
+  if (!(await ensureToken())) return;
+  try {
+    await fetch(SB_URL + '/storage/v1/object/' + BUCKET, {
+      method:'DELETE',
+      headers:{ 'apikey':SB_KEY, 'Authorization':'Bearer ' + auth.access_token, 'Content-Type':'application/json' },
+      body: JSON.stringify({ prefixes: paths })
+    });
+  } catch(e){ /* orphaned files are harmless */ }
+}
+
+/* ============ DATA ============ */
+async function loadAll(){
+  var s = await rest('settings?select=*&id=eq.1', {}, false);
+  var f = await rest('flats?select=*&order=sort_order.desc,created_at.desc', {}, false);
+  if (s.error || f.error) throw new Error(s.error || f.error);
+  SETTINGS = (s.data && s.data[0]) || {};
+  FLATS    = f.data || [];
+  applyTheme();
+}
+function applyTheme(){
+  if (SETTINGS.accent_color) {
+    document.documentElement.style.setProperty('--accent', SETTINGS.accent_color);
+    document.documentElement.style.setProperty('--accent-soft', SETTINGS.accent_color + '14');
+    var tc = document.querySelector('meta[name="theme-color"]');
+    if (tc) tc.setAttribute('content', SETTINGS.accent_color);
+  }
+  var t = SETTINGS.site_title || 'My Properties';
+  var d = SETTINGS.site_tagline || '';
+  document.title = t;
+  var set = function(sel, val){ var el = document.querySelector(sel); if (el) el.setAttribute('content', val); };
+  set('meta[property="og:title"]', t);
+  set('meta[property="og:description"]', d);
+  set('meta[name="description"]', d);
+}
+
+/* ============ ROUTER ============ */
+async function route(){
+  var h = location.hash;
+  if (h.indexOf('#admin') === 0) return renderAdmin();
+  if (h.indexOf('#flat/') === 0) {
+    var id = h.slice(6);
+    for (var i = 0; i < FLATS.length; i++) {
+      if (FLATS[i].id === id) return renderDetail(FLATS[i]);
+    }
+  }
+  renderList();
+}
+window.addEventListener('hashchange', route);
+
+/* ============ PUBLIC: LIST ============ */
+function header(){
+  var wa = waLink(null), tel = telLink();
+  return '<header class="site"><div class="wrap hdr">'
+    + '<div class="brand">'
+    +   '<b>' + esc(SETTINGS.site_title || 'My Properties') + '<span class="v">' + VERSION + '</span></b>'
+    +   (SETTINGS.owner_name ? '<span>' + esc(SETTINGS.owner_name) + '</span>' : '')
+    + '</div>'
+    + '<div class="hdr-actions">'
+    +   (wa ? '<a class="btn btn-wa" href="' + wa + '" target="_blank" rel="noopener">' + I.wa + '<span class="lbl">WhatsApp</span></a>' : '')
+    +   (tel ? '<a class="btn btn-call" href="' + tel + '">' + I.phone + '<span class="lbl">Call</span></a>' : '')
+    + '</div></div></header>';
+}
+function visible(){
+  return FLATS.filter(function(f){ return f.published; });
+}
+function card(f){
+  var img = cover(f);
+  var n = (f.photos || []).length;
+  var feats = (f.features || []).slice(0,3);
+  var extra = (f.features || []).length - feats.length;
+  var statusLabel = f.status === 'available' ? 'Available' : (f.status === 'reserved' ? 'Reserved' : 'Sold');
+  return '<div class="card" data-id="' + f.id + '">'
+    + '<div class="card-img">'
+    +   (img ? '<img src="' + esc(img) + '" alt="' + esc(f.title) + '" loading="lazy">' : '<div class="ph">' + I.home + '</div>')
+    +   '<div class="badges"><span class="badge ' + esc(f.status) + '">' + statusLabel + '</span>'
+    +   '<span class="badge">For ' + (f.listing_type === 'rent' ? 'rent' : 'sale') + '</span></div>'
+    +   (n > 1 ? '<div class="photo-count">' + I.cam + ' ' + n + '</div>' : '')
+    + '</div>'
+    + '<div class="card-body">'
+    +   '<div class="card-price">' + money(f.price, f.currency) + (f.price_note ? ' <small>' + esc(f.price_note) + '</small>' : '') + '</div>'
+    +   (f.title ? '<div class="card-title">' + esc(f.title) + '</div>' : '')
+    +   '<div class="card-loc">' + I.pin + esc(locLine(f) || 'Location on request') + '</div>'
+    +   '<div class="specs">'
+    +     (f.bedrooms !== null && f.bedrooms !== undefined ? '<div class="spec">' + I.bed + ' ' + f.bedrooms + ' bed</div>' : '')
+    +     (f.bathrooms !== null && f.bathrooms !== undefined ? '<div class="spec">' + I.bath + ' ' + f.bathrooms + ' bath</div>' : '')
+    +     (f.size_value ? '<div class="spec">' + I.ruler + ' ' + Number(f.size_value).toLocaleString() + ' ' + esc(f.size_unit) + '</div>' : '')
+    +     (f.floor_label ? '<div class="spec">' + I.stairs + ' ' + esc(f.floor_label) + '</div>' : '')
+    +   '</div>'
+    +   (feats.length ? '<div class="chips">' + feats.map(function(x){ return '<span class="chip">' + esc(x) + '</span>'; }).join('')
+          + (extra > 0 ? '<span class="chip more">+' + extra + '</span>' : '') + '</div>' : '')
+    + '</div></div>';
+}
+function renderList(){
+  var list = visible();
+  app.innerHTML = header()
+    + '<div class="wrap">'
+    + '<div class="hero"><h1>' + esc(SETTINGS.site_title || 'Available Properties') + '</h1>'
+    + '<p>' + esc(SETTINGS.site_tagline || '') + '</p></div>'
+    + (list.length
+        ? '<div class="grid">' + list.map(card).join('') + '</div>'
+        : '<div class="empty">' + I.home + '<h3>No properties yet</h3><p>Listings will appear here once added.</p></div>')
+    + '</div>';
+  attachCards();
+}
+function attachCards(){
+  var els = document.querySelectorAll('.card');
+  for (var i = 0; i < els.length; i++) {
+    els[i].onclick = function(){ location.hash = '#flat/' + this.getAttribute('data-id'); };
+  }
+}
+
+/* ============ PUBLIC: DETAIL ============ */
+function renderDetail(f){
+  var photos = f.photos || [];
+  var ordered = [];
+  if (photos.length) {
+    var ci = f.cover_index || 0;
+    ordered.push(photos[ci] || photos[0]);
+    for (var i = 0; i < photos.length; i++) if (i !== ci) ordered.push(photos[i]);
+    ordered = ordered.filter(Boolean);
+  }
+  var wa = waLink(f), tel = telLink();
+  var statusLabel = f.status === 'available' ? 'Available' : (f.status === 'reserved' ? 'Reserved' : 'Sold');
+
+  var gal;
+  if (ordered.length) {
+    gal = '<div class="gal' + (ordered.length < 2 ? ' gal-single' : '') + '">'
+      + '<div class="gal-main" data-i="0"><img src="' + esc(ordered[0].url) + '" alt=""></div>'
+      + '<div class="gal-side">'
+      + (ordered[1] ? '<div class="gal-thumb" data-i="1"><img src="' + esc(ordered[1].url) + '" alt=""></div>' : '')
+      + (ordered[2] ? '<div class="gal-thumb" data-i="2"><img src="' + esc(ordered[2].url) + '" alt="">'
+          + (ordered.length > 3 ? '<div class="gal-more">+' + (ordered.length - 3) + '</div>' : '') + '</div>' : '')
+      + '</div></div>';
+  } else {
+    gal = '<div class="gal-empty">' + I.home + '<span>No photos yet</span></div>';
+  }
+
+  app.innerHTML = '<div class="detail" id="detail">'
+    + '<div class="detail-top"><div class="wrap">'
+    +   '<button class="btn btn-ghost btn-sm" id="back">' + I.back + ' Back</button>'
+    +   '<div class="sp"></div>'
+    +   '<button class="btn btn-ghost btn-sm" id="share">' + I.share + ' Share</button>'
+    + '</div></div>'
+    + '<div class="wrap">' + gal
+    + '<div class="dcols"><div>'
+    +   '<h1 class="dtitle">' + esc(f.title || locLine(f) || 'Property') + '</h1>'
+    +   '<div class="dloc">' + I.pin + esc(locLine(f) || 'Location on request') + '</div>'
+    +   '<div class="dstats">'
+    +     (f.bedrooms !== null && f.bedrooms !== undefined ? '<div class="dstat"><b>' + f.bedrooms + '</b><span>Bedroom' + (f.bedrooms == 1 ? '' : 's') + '</span></div>' : '')
+    +     (f.bathrooms !== null && f.bathrooms !== undefined ? '<div class="dstat"><b>' + f.bathrooms + '</b><span>Bathroom' + (f.bathrooms == 1 ? '' : 's') + '</span></div>' : '')
+    +     (f.size_value ? '<div class="dstat"><b>' + Number(f.size_value).toLocaleString() + '</b><span>' + esc(f.size_unit) + '</span></div>' : '')
+    +     (f.floor_label ? '<div class="dstat"><b>' + esc(f.floor_label) + '</b><span>Floor</span></div>' : '')
+    +   '</div>'
+    +   (f.description ? '<div class="sec"><h3>About this property</h3><p>' + esc(f.description) + '</p></div>' : '')
+    +   ((f.features || []).length ? '<div class="sec"><h3>Highlights</h3><div class="taglist">'
+          + f.features.map(function(x){ return '<span class="tag">' + I.check + esc(x) + '</span>'; }).join('') + '</div></div>' : '')
+    +   ((f.facilities || []).length ? '<div class="sec"><h3>Building facilities</h3><div class="taglist">'
+          + f.facilities.map(function(x){ return '<span class="tag">' + I.check + esc(x) + '</span>'; }).join('') + '</div></div>' : '')
+    +   (SETTINGS.about ? '<div class="sec"><h3>About</h3><p>' + esc(SETTINGS.about) + '</p></div>' : '')
+    + '</div>'
+    + '<div class="aside"><div class="pricebox">'
+    +   '<div class="p">' + money(f.price, f.currency) + '</div>'
+    +   '<div class="pn">' + esc(f.price_note || (f.listing_type === 'rent' ? 'For rent' : 'For sale'))
+    +     ' &middot; <b style="color:var(--accent)">' + statusLabel + '</b></div>'
+    +   '<div class="divider"></div>'
+    +   (wa ? '<a class="btn btn-wa" href="' + wa + '" target="_blank" rel="noopener">' + I.wa + ' WhatsApp about this flat</a>' : '')
+    +   (tel ? '<a class="btn btn-call" href="' + tel + '">' + I.phone + ' Call ' + esc(SETTINGS.owner_name || 'now') + '</a>' : '')
+    +   (f.map_url ? '<a class="mapbtn" href="' + esc(f.map_url) + '" target="_blank" rel="noopener">' + I.map + ' View on map</a>' : '')
+    +   '<div class="note">Your message arrives with this listing already attached, so there is no need to explain which flat.</div>'
+    + '</div></div></div></div>'
+    + '<div class="mobilebar">'
+    +   (wa ? '<a class="btn btn-wa" href="' + wa + '" target="_blank" rel="noopener">' + I.wa + ' WhatsApp</a>' : '')
+    +   (tel ? '<a class="btn btn-call" href="' + tel + '">' + I.phone + ' Call</a>' : '')
+    + '</div></div>';
+
+  $('back').onclick = function(){ if (history.length > 1) history.back(); else location.hash = ''; };
+  $('share').onclick = async function(){
+    var url = pageUrl() + '#flat/' + f.id;
+    if (navigator.share) {
+      try { await navigator.share({ title: f.title || 'Property', text: locLine(f), url: url }); } catch(e){}
+    } else if (navigator.clipboard) {
+      try { await navigator.clipboard.writeText(url); toast('Link copied'); } catch(e){ prompt('Copy link:', url); }
+    } else { prompt('Copy link:', url); }
+  };
+  var gs = document.querySelectorAll('.gal-main,.gal-thumb');
+  for (var j = 0; j < gs.length; j++) {
+    gs[j].onclick = function(){ openLb(ordered, Number(this.getAttribute('data-i'))); };
+  }
+  window.scrollTo(0,0);
+}
+
+/* ============ LIGHTBOX ============ */
+function openLb(photos, i){
+  lb = { open:true, photos:photos, i:i };
+  var d = document.createElement('div');
+  d.className = 'lb'; d.id = 'lb';
+  document.body.appendChild(d);
+  document.body.style.overflow = 'hidden';
+  drawLb();
+  document.addEventListener('keydown', lbKeys);
+}
+function drawLb(){
+  var d = $('lb'); if (!d) return;
+  var p = lb.photos[lb.i];
+  d.innerHTML = '<button class="lb-x" id="lbx">' + I.x + '</button>'
+    + (lb.photos.length > 1 ? '<button class="lb-nav lb-prev" id="lbp">' + I.left + '</button><button class="lb-nav lb-next" id="lbn">' + I.right + '</button>' : '')
+    + '<img src="' + esc(p.url) + '" alt="">'
+    + (lb.photos.length > 1 ? '<div class="lb-n">' + (lb.i+1) + ' / ' + lb.photos.length + '</div>' : '');
+  $('lbx').onclick = closeLb;
+  if ($('lbp')) $('lbp').onclick = function(e){ e.stopPropagation(); step(-1); };
+  if ($('lbn')) $('lbn').onclick = function(e){ e.stopPropagation(); step(1); };
+  d.onclick = function(e){ if (e.target === d || e.target.tagName === 'IMG') closeLb(); };
+  var x0 = null;
+  d.ontouchstart = function(e){ x0 = e.touches[0].clientX; };
+  d.ontouchend = function(e){
+    if (x0 === null) return;
+    var dx = e.changedTouches[0].clientX - x0;
+    if (Math.abs(dx) > 50) step(dx < 0 ? 1 : -1);
+    x0 = null;
+  };
+}
+function step(n){ lb.i = (lb.i + n + lb.photos.length) % lb.photos.length; drawLb(); }
+function closeLb(){
+  var d = $('lb'); if (d) d.parentNode.removeChild(d);
+  document.body.style.overflow = '';
+  lb.open = false;
+  document.removeEventListener('keydown', lbKeys);
+}
+function lbKeys(e){
+  if (!lb.open) return;
+  if (e.key === 'Escape') closeLb();
+  if (e.key === 'ArrowLeft') step(-1);
+  if (e.key === 'ArrowRight') step(1);
+}
+
+/* ============ ADMIN ============ */
+function renderAdmin(){
+  if (!loggedIn()) return renderLogin();
+  if (editing) return renderEditor();
+  renderDash();
+}
+function renderLogin(){
+  app.innerHTML = '<div class="admin"><div class="login"><div class="loginbox">'
+    + '<h2>Admin sign in</h2><p>Only you can add or change listings.</p>'
+    + '<div id="loginerr"></div>'
+    + '<div class="field"><label>Email</label><input class="inp" id="em" type="email" autocomplete="username" placeholder="you@example.com"></div>'
+    + '<div class="field"><label>Password</label><input class="inp" id="pw" type="password" autocomplete="current-password" placeholder="Your password"></div>'
+    + '<button class="btn btn-solid" id="go" style="width:100%;height:44px">Sign in</button>'
+    + '<div style="text-align:center;margin-top:16px"><a href="#" style="font-size:13px;color:var(--ink-3)">Back to site</a></div>'
+    + '</div></div></div>';
+  var go = async function(){
+    var email = $('em').value.trim(), password = $('pw').value;
+    if (!email || !password) return;
+    $('go').disabled = true; $('go').textContent = 'Signing in...';
+    var r = await signIn(email, password);
+    if (r.error) {
+      $('loginerr').innerHTML = '<div class="err">' + esc(r.error) + '</div>';
+      $('go').disabled = false; $('go').textContent = 'Sign in';
+      return;
+    }
+    try { await loadAll(); } catch(e){}
+    renderAdmin();
+  };
+  $('go').onclick = go;
+  $('pw').onkeydown = function(e){ if (e.key === 'Enter') go(); };
+  $('em').onkeydown = function(e){ if (e.key === 'Enter') $('pw').focus(); };
+}
+function adminHeader(){
+  return '<div class="aheader"><div class="wrap">'
+    + '<b>' + esc(SETTINGS.site_title || 'My Properties') + '</b><span class="pill">ADMIN</span>'
+    + '<div style="flex:1"></div>'
+    + '<a class="btn btn-ghost btn-sm" href="#">View site</a>'
+    + '<button class="btn btn-ghost btn-sm" id="out">Sign out</button>'
+    + '</div></div>';
+}
+function bindAdminHeader(){
+  $('out').onclick = function(){ signOut(); location.hash = ''; toast('Signed out'); };
+}
+function renderDash(){
+  app.innerHTML = '<div class="admin">' + adminHeader() + '<div class="wrap" style="padding-top:26px">'
+    + '<div class="tabs">'
+    + '<button class="tab ' + (adminTab === 'flats' ? 'on' : '') + '" data-t="flats">Flats (' + FLATS.length + ')</button>'
+    + '<button class="tab ' + (adminTab === 'settings' ? 'on' : '') + '" data-t="settings">Contact and settings</button>'
+    + '</div><div id="tabbody"></div></div></div>';
+  bindAdminHeader();
+  var ts = document.querySelectorAll('.tab');
+  for (var i = 0; i < ts.length; i++) {
+    ts[i].onclick = function(){ adminTab = this.getAttribute('data-t'); renderDash(); };
+  }
+  if (adminTab === 'flats') tabFlats(); else tabSettings();
+}
+function tabFlats(){
+  $('tabbody').innerHTML =
+      '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;gap:12px;flex-wrap:wrap">'
+    + '<div><h3 style="margin:0;font-size:17px;letter-spacing:-.02em">Your listings</h3>'
+    + '<div style="font-size:13px;color:var(--ink-3);margin-top:2px">Use the arrows to change the order shown on the site.</div></div>'
+    + '<button class="btn btn-solid" id="new">+ Add flat</button></div>'
+    + (FLATS.length
+        ? '<div class="alist">' + FLATS.map(rowHtml).join('') + '</div>'
+        : '<div class="empty">' + I.home + '<h3>No flats yet</h3><p>Click Add flat to create your first listing.</p></div>');
+  $('new').onclick = function(){ editing = blank(); renderEditor(); };
+  bindAll('[data-edit]', function(b){
+    for (var i = 0; i < FLATS.length; i++) {
+      if (FLATS[i].id === b.getAttribute('data-edit')) { editing = JSON.parse(JSON.stringify(FLATS[i])); break; }
+    }
+    renderEditor();
+  });
+  bindAll('[data-del]',  function(b){ delFlat(b.getAttribute('data-del')); });
+  bindAll('[data-up]',   function(b){ move(b.getAttribute('data-up'), -1); });
+  bindAll('[data-down]', function(b){ move(b.getAttribute('data-down'), 1); });
+}
+function bindAll(sel, fn){
+  var els = document.querySelectorAll(sel);
+  for (var i = 0; i < els.length; i++) {
+    els[i].onclick = (function(el){ return function(){ fn(el); }; })(els[i]);
+  }
+}
+function rowHtml(f){
+  var img = cover(f);
+  var n = (f.photos || []).length;
+  return '<div class="arow">'
+    + (img ? '<img src="' + esc(img) + '">' : '<div class="noimg">' + I.cam + '</div>')
+    + '<div class="meta"><b>' + esc(f.title || locLine(f) || 'Untitled') + '</b>'
+    + '<span>' + money(f.price, f.currency) + ' &middot; ' + esc(locLine(f) || 'no location')
+    + ' &middot; ' + n + ' photo' + (n === 1 ? '' : 's')
+    + ' &middot; ' + (f.published ? 'Live' : 'Hidden') + ' &middot; ' + esc(f.status) + '</span></div>'
+    + '<div class="acts">'
+    + '<button class="btn btn-ghost btn-sm" data-up="' + f.id + '" title="Move up">&uarr;</button>'
+    + '<button class="btn btn-ghost btn-sm" data-down="' + f.id + '" title="Move down">&darr;</button>'
+    + '<button class="btn btn-ghost btn-sm" data-edit="' + f.id + '">Edit</button>'
+    + '<button class="btn btn-ghost btn-sm" data-del="' + f.id + '" style="color:#dc2626">Delete</button>'
+    + '</div></div>';
+}
+async function move(id, dir){
+  var i = -1, k;
+  for (k = 0; k < FLATS.length; k++) if (FLATS[k].id === id) i = k;
+  var j = i + dir;
+  if (i < 0 || j < 0 || j >= FLATS.length) return;
+  var a = FLATS[i], b = FLATS[j], max = FLATS.length;
+  await rest('flats?id=eq.' + a.id, { method:'PATCH', body:{ sort_order: max - j } }, true);
+  await rest('flats?id=eq.' + b.id, { method:'PATCH', body:{ sort_order: max - i } }, true);
+  try { await loadAll(); } catch(e){}
+  renderDash();
+}
+async function delFlat(id){
+  var f = null, i;
+  for (i = 0; i < FLATS.length; i++) if (FLATS[i].id === id) f = FLATS[i];
+  if (!f) return;
+  if (!confirm('Delete "' + (f.title || 'this flat') + '" and its photos? This cannot be undone.')) return;
+  var paths = (f.photos || []).map(function(p){ return p.path; }).filter(Boolean);
+  await deletePhotos(paths);
+  var r = await rest('flats?id=eq.' + id, { method:'DELETE' }, true);
+  if (r.error) return toast(r.error, true);
+  try { await loadAll(); } catch(e){}
+  renderDash();
+  toast('Flat deleted');
+}
+function blank(){
+  return {
+    id:null, title:'', country:'', area:'', building:'',
+    listing_type:'sale', status:'available',
+    price:'', currency: SETTINGS.default_currency || 'BHD', price_note:'',
+    bedrooms:'', bathrooms:'', size_value:'', size_unit:'sqm', floor_label:'',
+    features:[], facilities:[], description:'', map_url:'',
+    photos:[], cover_index:0, published:true, sort_order:0
+  };
+}
+function opts(list, sel){
+  return list.map(function(o){
+    return '<option value="' + o[0] + '"' + (sel === o[0] ? ' selected' : '') + '>' + esc(o[1]) + '</option>';
+  }).join('');
+}
+function renderEditor(){
+  var f = editing;
+  app.innerHTML = '<div class="admin">' + adminHeader() + '<div class="wrap" style="padding-top:22px;max-width:840px">'
+    + '<button class="btn btn-ghost btn-sm" id="cancel2" style="margin-bottom:16px">' + I.back + ' Back to list</button>'
+    + '<h2 style="margin:0 0 20px;font-size:22px;font-weight:800;letter-spacing:-.03em">' + (f.id ? 'Edit flat' : 'Add a new flat') + '</h2>'
+
+    + '<div class="panel"><h3>Photos</h3><p class="sub">The first photo is the cover. Photos are resized automatically so the site loads fast.</p>'
+    + '<div class="drop" id="drop"><b>Click to choose photos, or drag them here</b>JPG, PNG or WEBP. You can select many at once.</div>'
+    + '<input type="file" id="file" accept="image/*" multiple class="hide">'
+    + '<div id="prog" class="hide"><div class="prog"><div id="progbar" style="width:0%"></div></div>'
+    + '<div style="font-size:12.5px;color:var(--ink-3);margin-top:7px" id="progtxt"></div></div>'
+    + '<div class="thumbs" id="thumbs"></div></div>'
+
+    + '<div class="panel"><h3>The basics</h3><p class="sub">Where it is and what it is called.</p>'
+    + '<div class="field"><label>Listing title</label><input class="inp" id="title" value="' + esc(f.title) + '" placeholder="e.g. Bright 2 bed with sea view">'
+    + '<div class="hint">Leave this blank and the location will be used instead.</div></div>'
+    + '<div class="row row-3">'
+    + '<div class="field"><label>Country</label><input class="inp" id="country" value="' + esc(f.country) + '" placeholder="e.g. Bahrain"></div>'
+    + '<div class="field"><label>Area</label><input class="inp" id="area" value="' + esc(f.area) + '" placeholder="e.g. Juffair"></div>'
+    + '<div class="field"><label>Building or project</label><input class="inp" id="building" value="' + esc(f.building) + '" placeholder="e.g. Marina Heights"></div>'
+    + '</div><div class="row row-2">'
+    + '<div class="field"><label>For sale or rent</label><select class="inp" id="listing_type">'
+    +   opts([['sale','For sale'],['rent','For rent']], f.listing_type) + '</select></div>'
+    + '<div class="field"><label>Status</label><select class="inp" id="status">'
+    +   opts([['available','Available'],['reserved','Reserved'],['sold','Sold or rented']], f.status) + '</select></div>'
+    + '</div></div>'
+
+    + '<div class="panel"><h3>Price</h3><p class="sub">Each flat can use a different currency.</p>'
+    + '<div class="row row-price">'
+    + '<div class="field"><label>Currency</label><select class="inp" id="currency">' + opts(CURRENCIES, f.currency) + '</select></div>'
+    + '<div class="field"><label>Amount</label><input class="inp" id="price" type="number" inputmode="numeric" value="'
+    +   (f.price === null || f.price === undefined ? '' : f.price) + '" placeholder="Leave blank for Price on request"></div></div>'
+    + '<div class="field"><label>Price note (optional)</label><input class="inp" id="price_note" value="' + esc(f.price_note)
+    + '" placeholder="e.g. negotiable, per year, incl. service charge"></div></div>'
+
+    + '<div class="panel"><h3>Size and layout</h3>'
+    + '<div class="row row-2">'
+    + '<div class="field"><label>Bedrooms</label><input class="inp" id="bedrooms" type="number" min="0" value="'
+    +   (f.bedrooms === null || f.bedrooms === undefined ? '' : f.bedrooms) + '" placeholder="e.g. 2"></div>'
+    + '<div class="field"><label>Bathrooms or toilets</label><input class="inp" id="bathrooms" type="number" min="0" value="'
+    +   (f.bathrooms === null || f.bathrooms === undefined ? '' : f.bathrooms) + '" placeholder="e.g. 3"></div>'
+    + '</div><div class="row row-3">'
+    + '<div class="field"><label>Size</label><input class="inp" id="size_value" type="number" value="'
+    +   (f.size_value === null || f.size_value === undefined ? '' : f.size_value) + '" placeholder="e.g. 145"></div>'
+    + '<div class="field"><label>Unit</label><select class="inp" id="size_unit">'
+    +   opts([['sqm','sq m'],['sqft','sq ft']], f.size_unit) + '</select></div>'
+    + '<div class="field"><label>Floor</label><input class="inp" id="floor_label" value="' + esc(f.floor_label) + '" placeholder="e.g. 12th"></div>'
+    + '</div></div>'
+
+    + '<div class="panel"><h3>Special features</h3><p class="sub">Tap to select. These appear as highlights on the listing.</p>'
+    + '<div class="optgrid" id="feats"></div>'
+    + '<div style="display:flex;gap:8px;margin-top:12px"><input class="inp" id="featnew" placeholder="Add your own feature" style="flex:1">'
+    + '<button class="btn btn-ghost" id="featadd">Add</button></div></div>'
+
+    + '<div class="panel"><h3>Building facilities</h3><p class="sub">Shared amenities in the building or compound.</p>'
+    + '<div class="optgrid" id="facs"></div>'
+    + '<div style="display:flex;gap:8px;margin-top:12px"><input class="inp" id="facnew" placeholder="Add your own facility" style="flex:1">'
+    + '<button class="btn btn-ghost" id="facadd">Add</button></div></div>'
+
+    + '<div class="panel"><h3>Description and map</h3>'
+    + '<div class="field"><label>Description</label><textarea class="inp" id="description" placeholder="Anything a buyer would want to know. Condition, view, nearby schools, parking, handover date.">' + esc(f.description) + '</textarea></div>'
+    + '<div class="field"><label>Google Maps link (optional)</label><input class="inp" id="map_url" value="' + esc(f.map_url) + '" placeholder="Paste a Google Maps share link">'
+    + '<div class="hint">Open Google Maps, find the building, tap Share, then Copy link.</div></div>'
+    + '<div class="field"><label>Visibility</label><select class="inp" id="published">'
+    +   opts([['true','Live, visible to anyone with the link'],['false','Hidden, only you can see it']], f.published ? 'true' : 'false')
+    + '</select></div></div>'
+
+    + '<div class="bar"><button class="btn btn-ghost" id="cancel">Cancel</button>'
+    + '<button class="btn btn-solid" id="save">' + (f.id ? 'Save changes' : 'Create listing') + '</button></div>'
+    + '<div style="height:30px"></div></div></div>';
+
+  bindAdminHeader(); drawOpts(); drawThumbs(); wireUpload();
+  $('cancel').onclick = $('cancel2').onclick = function(){ editing = null; renderDash(); };
+  $('save').onclick = save;
+  $('featadd').onclick = function(){ addCustom('featnew','features'); };
+  $('facadd').onclick  = function(){ addCustom('facnew','facilities'); };
+  $('featnew').onkeydown = function(e){ if (e.key === 'Enter'){ e.preventDefault(); addCustom('featnew','features'); } };
+  $('facnew').onkeydown  = function(e){ if (e.key === 'Enter'){ e.preventDefault(); addCustom('facnew','facilities'); } };
+}
+function addCustom(inputId, key){
+  var v = $(inputId).value.trim();
+  if (!v) return;
+  if (editing[key].indexOf(v) === -1) editing[key].push(v);
+  $(inputId).value = '';
+  drawOpts();
+}
+function drawOpts(){
+  var build = function(host, presets, key){
+    var all = presets.slice();
+    editing[key].forEach(function(x){ if (all.indexOf(x) === -1) all.push(x); });
+    $(host).innerHTML = all.map(function(x){
+      var on = editing[key].indexOf(x) > -1;
+      return '<button class="opt' + (on ? ' on' : '') + '" data-k="' + key + '" data-v="' + esc(x) + '">' + (on ? I.check : '') + esc(x) + '</button>';
+    }).join('');
+  };
+  build('feats', FEATURES, 'features');
+  build('facs', FACILITIES, 'facilities');
+  bindAll('.opt', function(b){
+    var k = b.getAttribute('data-k'), v = b.getAttribute('data-v');
+    var i = editing[k].indexOf(v);
+    if (i > -1) editing[k].splice(i,1); else editing[k].push(v);
+    drawOpts();
+  });
+}
+function drawThumbs(){
+  $('thumbs').innerHTML = (editing.photos || []).map(function(p, i){
+    return '<div class="th' + (i === editing.cover_index ? ' cover' : '') + '">'
+      + '<img src="' + esc(p.url) + '">'
+      + '<div class="th-bar">'
+      + '<button class="th-b" data-mv="' + i + '" data-d="-1" title="Move left">&larr;</button>'
+      + '<button class="th-b" data-mv="' + i + '" data-d="1" title="Move right">&rarr;</button>'
+      + '<button class="th-b" data-cov="' + i + '" title="Make cover">&#9733;</button>'
+      + '<button class="th-b del" data-rm="' + i + '" title="Remove">&times;</button>'
+      + '</div>'
+      + (i === editing.cover_index ? '<div class="th-cov">COVER</div>' : '')
+      + '</div>';
+  }).join('');
+  bindAll('[data-rm]', function(b){
+    editing.photos.splice(Number(b.getAttribute('data-rm')), 1);
+    if (editing.cover_index >= editing.photos.length) editing.cover_index = 0;
+    drawThumbs();
+  });
+  bindAll('[data-cov]', function(b){ editing.cover_index = Number(b.getAttribute('data-cov')); drawThumbs(); });
+  bindAll('[data-mv]', function(b){
+    var i = Number(b.getAttribute('data-mv')), d = Number(b.getAttribute('data-d')), j = i + d;
+    if (j < 0 || j >= editing.photos.length) return;
+    var was = editing.cover_index, tmp = editing.photos[i];
+    editing.photos[i] = editing.photos[j];
+    editing.photos[j] = tmp;
+    if (was === i) editing.cover_index = j; else if (was === j) editing.cover_index = i;
+    drawThumbs();
+  });
+}
+function resize(file, max, quality){
+  max = max || 1920; quality = quality || 0.82;
+  return new Promise(function(resolve, reject){
+    var img = new Image();
+    var url = URL.createObjectURL(file);
+    img.onload = function(){
+      URL.revokeObjectURL(url);
+      var w = img.width, h = img.height;
+      if (w > max || h > max) { var r = Math.min(max/w, max/h); w = Math.round(w*r); h = Math.round(h*r); }
+      var c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      c.getContext('2d').drawImage(img, 0, 0, w, h);
+      c.toBlob(function(b){ b ? resolve(b) : reject(new Error('Could not process image')); }, 'image/jpeg', quality);
+    };
+    img.onerror = function(){ URL.revokeObjectURL(url); reject(new Error('Not a readable image')); };
+    img.src = url;
+  });
+}
+function wireUpload(){
+  var drop = $('drop'), file = $('file');
+  drop.onclick = function(){ file.click(); };
+  drop.ondragover = function(e){ e.preventDefault(); drop.className = 'drop over'; };
+  drop.ondragleave = function(){ drop.className = 'drop'; };
+  drop.ondrop = function(e){
+    e.preventDefault(); drop.className = 'drop';
+    upload(Array.prototype.slice.call(e.dataTransfer.files));
+  };
+  file.onchange = function(e){ upload(Array.prototype.slice.call(e.target.files)); e.target.value = ''; };
+}
+async function upload(files){
+  files = files.filter(function(f){ return f.type.indexOf('image/') === 0; });
+  if (!files.length) return;
+  var box = $('prog'), bar = $('progbar'), txt = $('progtxt');
+  box.className = '';
+  var done = 0, failed = 0, lastErr = '';
+  for (var i = 0; i < files.length; i++) {
+    txt.textContent = 'Uploading ' + (done+1) + ' of ' + files.length + '...';
+    try {
+      var blob = await resize(files[i]);
+      var path = (editing.id || 'draft') + '/' + uuid() + '.jpg';
+      var r = await uploadPhoto(blob, path);
+      if (r.error) { failed++; lastErr = r.error; }
+      else editing.photos.push({ url: publicUrl(path), path: path });
+    } catch(e){ failed++; lastErr = e.message; }
+    done++;
+    bar.style.width = Math.round(done/files.length*100) + '%';
+    drawThumbs();
+  }
+  txt.textContent = failed ? ((done-failed) + ' uploaded, ' + failed + ' failed') : (done + ' photo' + (done === 1 ? '' : 's') + ' uploaded');
+  setTimeout(function(){ box.className = 'hide'; bar.style.width = '0%'; }, 2400);
+  if (failed) toast(lastErr || (failed + ' photos could not be uploaded'), true);
+}
+function numOrNull(id){
+  var v = $(id).value.trim();
+  return v === '' ? null : Number(v);
+}
+async function save(){
+  var f = editing;
+  var payload = {
+    title:$('title').value.trim(), country:$('country').value.trim(),
+    area:$('area').value.trim(), building:$('building').value.trim(),
+    listing_type:$('listing_type').value, status:$('status').value,
+    price:numOrNull('price'), currency:$('currency').value,
+    price_note:$('price_note').value.trim(),
+    bedrooms:numOrNull('bedrooms'), bathrooms:numOrNull('bathrooms'),
+    size_value:numOrNull('size_value'), size_unit:$('size_unit').value,
+    floor_label:$('floor_label').value.trim(),
+    features:f.features, facilities:f.facilities,
+    description:$('description').value.trim(), map_url:$('map_url').value.trim(),
+    photos:f.photos, cover_index:f.cover_index || 0,
+    published:$('published').value === 'true'
+  };
+  if (!payload.title && !payload.area && !payload.building) {
+    return toast('Add at least a title or a location', true);
+  }
+  $('save').disabled = true; $('save').textContent = 'Saving...';
+  var r;
+  if (f.id) {
+    r = await rest('flats?id=eq.' + f.id, { method:'PATCH', body:payload }, true);
+  } else {
+    var maxSort = 0;
+    FLATS.forEach(function(x){ if ((x.sort_order||0) > maxSort) maxSort = x.sort_order||0; });
+    payload.sort_order = maxSort + 1;
+    r = await rest('flats', { method:'POST', body:payload, headers:{ 'Prefer':'return=representation' } }, true);
+  }
+  if (r.error) {
+    $('save').disabled = false;
+    $('save').textContent = f.id ? 'Save changes' : 'Create listing';
+    return toast(r.error, true);
+  }
+  editing = null;
+  try { await loadAll(); } catch(e){}
+  renderDash();
+  toast('Saved');
+}
+function tabSettings(){
+  var s = SETTINGS;
+  $('tabbody').innerHTML =
+      '<div class="panel" style="max-width:620px"><h3>Contact buttons</h3>'
+    + '<p class="sub">These power the WhatsApp and Call buttons across the whole site.</p>'
+    + '<div class="field"><label>WhatsApp number</label><input class="inp" id="s_wa" value="' + esc(s.whatsapp_number || '') + '" placeholder="97312345678">'
+    + '<div class="hint">Country code first, digits only, no plus sign and no spaces. Bahrain example: <b>973</b> then your number.</div></div>'
+    + '<div class="field"><label>Phone number for calls</label><input class="inp" id="s_ph" value="' + esc(s.phone_number || '') + '" placeholder="+97312345678">'
+    + '<div class="hint">This one can include the plus sign.</div></div>'
+    + '<div class="field"><label>Your name</label><input class="inp" id="s_nm" value="' + esc(s.owner_name || '') + '" placeholder="Shown under the site title"></div></div>'
+
+    + '<div class="panel" style="max-width:620px"><h3>Site details</h3><p class="sub">What visitors see at the top of the page.</p>'
+    + '<div class="field"><label>Site title</label><input class="inp" id="s_ti" value="' + esc(s.site_title || '') + '" placeholder="e.g. Sabra Properties"></div>'
+    + '<div class="field"><label>Tagline</label><input class="inp" id="s_tg" value="' + esc(s.site_tagline || '') + '" placeholder="e.g. Quality flats in Bahrain"></div>'
+    + '<div class="field"><label>About text (optional)</label><textarea class="inp" id="s_ab" placeholder="A short note shown on every listing page.">' + esc(s.about || '') + '</textarea></div>'
+    + '<div class="row row-2">'
+    + '<div class="field"><label>Default currency for new flats</label><select class="inp" id="s_cu">' + opts(CURRENCIES, s.default_currency) + '</select></div>'
+    + '<div class="field"><label>Accent colour</label><input class="inp" id="s_ac" type="color" value="' + esc(s.accent_color || '#0f766e') + '" style="padding:4px;height:42px"></div>'
+    + '</div><div class="bar"><button class="btn btn-solid" id="ssave">Save settings</button></div></div>';
+
+  $('ssave').onclick = async function(){
+    $('ssave').disabled = true; $('ssave').textContent = 'Saving...';
+    var r = await rest('settings?id=eq.1', { method:'PATCH', body:{
+      whatsapp_number: $('s_wa').value.replace(/\D/g,''),
+      phone_number: $('s_ph').value.trim(),
+      owner_name: $('s_nm').value.trim(),
+      site_title: $('s_ti').value.trim() || 'My Properties',
+      site_tagline: $('s_tg').value.trim(),
+      about: $('s_ab').value.trim(),
+      default_currency: $('s_cu').value,
+      accent_color: $('s_ac').value
+    }}, true);
+    $('ssave').disabled = false; $('ssave').textContent = 'Save settings';
+    if (r.error) return toast(r.error, true);
+    try { await loadAll(); } catch(e){}
+    renderDash();
+    toast('Settings saved');
+  };
+}
+
+/* ============ BOOT ============ */
+(function(){
+  app.innerHTML = '<div class="wrap"><div style="height:64px"></div><div class="grid" style="padding-top:40px">'
+    + new Array(7).join('<div class="skel"><div class="s1"></div><div class="s2"></div><div class="s3"></div></div>')
+    + '</div></div>';
+  loadAll().then(function(){
+    route();
+  }).catch(function(e){
+    console.error(e);
+    app.innerHTML = '<div class="wrap"><div class="empty">' + I.home
+      + '<h3>Could not reach the database</h3>'
+      + '<p>Check your internet connection and refresh the page.</p></div></div>';
+  });
+})();
+</script>
+</body>
+</html>
