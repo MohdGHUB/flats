@@ -347,11 +347,11 @@ select.inp{appearance:none;cursor:pointer;padding-right:32px;background-image:no
 
 <script>
 /* ============================================================
-   MY PROPERTIES  v1.4
+   MY PROPERTIES  v1.5
    Single file. No external SDKs. Supabase via native fetch.
    ============================================================ */
 
-var VERSION  = 'v1.4';
+var VERSION  = 'v1.5';
 var SB_URL   = 'https://fdhsextgmelfnfbkrynl.supabase.co';
 var SB_KEY   = 'sb_publishable_aCTX2tjBKIBjaGmAuqIepQ_OIdbOgv-';
 var BUCKET   = 'flat-photos';
@@ -602,6 +602,47 @@ function detectSource(){
   if (h.indexOf(location.hostname) > -1) return 'direct';
   try { return new URL(r).hostname.replace(/^www\./,'').slice(0, 40); } catch(e){ return 'other'; }
 }
+/* Country comes from the browser's own timezone. No IP address is read and
+   nothing external is called. Approximate: a VPN or a traveller shows their
+   current location, not their home. Good enough to see who the audience is. */
+var TZ_COUNTRY = {
+  'Asia/Bahrain':'Bahrain','Asia/Riyadh':'Saudi Arabia','Asia/Dubai':'UAE','Asia/Muscat':'Oman',
+  'Asia/Qatar':'Qatar','Asia/Kuwait':'Kuwait','Asia/Baghdad':'Iraq','Asia/Amman':'Jordan',
+  'Asia/Beirut':'Lebanon','Asia/Damascus':'Syria','Asia/Jerusalem':'Israel','Asia/Gaza':'Palestine',
+  'Asia/Hebron':'Palestine','Asia/Tehran':'Iran','Asia/Aden':'Yemen',
+  'Africa/Cairo':'Egypt','Africa/Khartoum':'Sudan','Africa/Tripoli':'Libya','Africa/Tunis':'Tunisia',
+  'Africa/Algiers':'Algeria','Africa/Casablanca':'Morocco','Africa/Lagos':'Nigeria','Africa/Nairobi':'Kenya',
+  'Africa/Johannesburg':'South Africa',
+  'Asia/Karachi':'Pakistan','Asia/Kolkata':'India','Asia/Calcutta':'India','Asia/Colombo':'Sri Lanka',
+  'Asia/Dhaka':'Bangladesh','Asia/Kathmandu':'Nepal','Asia/Manila':'Philippines','Asia/Jakarta':'Indonesia',
+  'Asia/Kuala_Lumpur':'Malaysia','Asia/Singapore':'Singapore','Asia/Bangkok':'Thailand',
+  'Asia/Hong_Kong':'Hong Kong','Asia/Shanghai':'China','Asia/Tokyo':'Japan','Asia/Seoul':'South Korea',
+  'Europe/London':'United Kingdom','Europe/Dublin':'Ireland','Europe/Paris':'France','Europe/Berlin':'Germany',
+  'Europe/Madrid':'Spain','Europe/Rome':'Italy','Europe/Amsterdam':'Netherlands','Europe/Brussels':'Belgium',
+  'Europe/Zurich':'Switzerland','Europe/Vienna':'Austria','Europe/Stockholm':'Sweden','Europe/Oslo':'Norway',
+  'Europe/Copenhagen':'Denmark','Europe/Helsinki':'Finland','Europe/Warsaw':'Poland','Europe/Athens':'Greece',
+  'Europe/Lisbon':'Portugal','Europe/Istanbul':'Turkey','Europe/Moscow':'Russia','Europe/Kyiv':'Ukraine',
+  'Europe/Kiev':'Ukraine','Europe/Bucharest':'Romania','Europe/Budapest':'Hungary','Europe/Prague':'Czechia',
+  'America/New_York':'United States','America/Chicago':'United States','America/Denver':'United States',
+  'America/Los_Angeles':'United States','America/Phoenix':'United States','America/Anchorage':'United States',
+  'Pacific/Honolulu':'United States','America/Toronto':'Canada','America/Vancouver':'Canada',
+  'America/Edmonton':'Canada','America/Winnipeg':'Canada','America/Halifax':'Canada',
+  'America/Mexico_City':'Mexico','America/Sao_Paulo':'Brazil','America/Buenos_Aires':'Argentina',
+  'America/Bogota':'Colombia','America/Lima':'Peru','America/Santiago':'Chile',
+  'Australia/Sydney':'Australia','Australia/Melbourne':'Australia','Australia/Brisbane':'Australia',
+  'Australia/Perth':'Australia','Australia/Adelaide':'Australia','Pacific/Auckland':'New Zealand'
+};
+function detectCountry(tz){
+  if (!tz) return '';
+  if (TZ_COUNTRY[tz]) return TZ_COUNTRY[tz];
+  var parts = tz.split('/');
+  var city = parts[parts.length - 1].replace(/_/g, ' ');
+  return city || '';
+}
+var TZ = '';
+try { TZ = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch(e){ TZ = ''; }
+var COUNTRY = detectCountry(TZ);
+
 var SOURCE = detectSource();
 var DEVICE = (/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 768) ? 'mobile' : 'desktop';
 var trackedFlats = {};
@@ -618,7 +659,9 @@ function track(type, flatId){
         flat_id: flatId || null,
         session_id: sessionId(),
         source: SOURCE,
-        device: DEVICE
+        device: DEVICE,
+        country: COUNTRY,
+        tz: TZ
       }),
       keepalive: true
     }).catch(function(){});
@@ -988,6 +1031,15 @@ function drawVisitors(d){
       + '<span class="srcn">' + pct + '%</span></div>';
   }).join('') || '<div style="color:var(--ink-3);font-size:13px">Nothing yet</div>';
 
+  var cTotal = 0;
+  (d.by_country || []).forEach(function(c){ cTotal += Number(c.n); });
+  var countries = (d.by_country || []).map(function(c){
+    var pct = cTotal ? Math.round(c.n / cTotal * 100) : 0;
+    return '<div class="srcrow"><span class="srclbl" style="min-width:118px">' + esc(c.country) + '</span>'
+      + '<span class="srcbar"><div style="width:' + pct + '%"></div></span>'
+      + '<span class="srcn">' + c.n + '</span></div>';
+  }).join('') || '<div style="color:var(--ink-3);font-size:13px">Nothing yet</div>';
+
   $('anbody').innerHTML =
       '<div class="stats">'
     + '<div class="stat"><b>' + (t.people || 0) + '</b><span>People</span></div>'
@@ -1013,8 +1065,15 @@ function drawVisitors(d){
         : '<div style="color:var(--ink-3);font-size:13px">No flats yet</div>')
     + '</div>'
 
+    + '<div class="panel"><h3>Which country</h3>'
+    + '<p class="sub">Worked out from the visitor\'s timezone, so it is approximate. '
+    + 'Someone using a VPN or travelling will show where they are, not where they live.</p>'
+    + countries + '</div>'
+
     + '<div class="split">'
-    + '<div class="panel"><h3>Where they came from</h3><p class="sub">Based on the last ' + d.days + ' days.</p>' + sources + '</div>'
+    + '<div class="panel"><h3>Which app or site sent them</h3>'
+    + '<p class="sub">Direct means the browser gave no referrer: typed link, bookmark, '
+    + 'or an app like WhatsApp that hides it. Not a location.</p>' + sources + '</div>'
     + '<div class="panel"><h3>Phone or computer</h3><p class="sub">Share of visits.</p>' + devices + '</div>'
     + '</div>';
 }
