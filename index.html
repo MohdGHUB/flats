@@ -347,11 +347,11 @@ select.inp{appearance:none;cursor:pointer;padding-right:32px;background-image:no
 
 <script>
 /* ============================================================
-   MY PROPERTIES  v1.5
+   MY PROPERTIES  v1.6
    Single file. No external SDKs. Supabase via native fetch.
    ============================================================ */
 
-var VERSION  = 'v1.5';
+var VERSION  = 'v1.6';
 var SB_URL   = 'https://fdhsextgmelfnfbkrynl.supabase.co';
 var SB_KEY   = 'sb_publishable_aCTX2tjBKIBjaGmAuqIepQ_OIdbOgv-';
 var BUCKET   = 'flat-photos';
@@ -647,13 +647,18 @@ var SOURCE = detectSource();
 var DEVICE = (/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 768) ? 'mobile' : 'desktop';
 var trackedFlats = {};
 
+/* Events go through the log-event edge function, not straight to the table.
+   The function works out the country from the network connection, which the
+   browser cannot do reliably: Bahrain and Saudi share a timezone, so a Bahrain
+   phone reports Asia/Riyadh. The timezone value is still sent as a fallback for
+   when the lookup is unavailable. */
 function track(type, flatId){
   if (loggedIn()) return;                       // never count the owner
   if (location.hash.indexOf('#admin') === 0) return;
   try {
-    fetch(SB_URL + '/rest/v1/events', {
+    fetch(SB_URL + '/functions/v1/log-event', {
       method: 'POST',
-      headers: { 'apikey': SB_KEY, 'Content-Type':'application/json', 'Prefer':'return=minimal' },
+      headers: { 'apikey': SB_KEY, 'Content-Type':'application/json' },
       body: JSON.stringify({
         type: type,
         flat_id: flatId || null,
@@ -664,6 +669,13 @@ function track(type, flatId){
         tz: TZ
       }),
       keepalive: true
+    }).then(function(r){
+      // the visit reply carries the real country, reuse it for later clicks
+      if (type === 'visit' && r && r.ok) {
+        r.json().then(function(d){
+          if (d && d.country) COUNTRY = d.country;
+        }).catch(function(){});
+      }
     }).catch(function(){});
   } catch(e){}
 }
@@ -1066,8 +1078,8 @@ function drawVisitors(d){
     + '</div>'
 
     + '<div class="panel"><h3>Which country</h3>'
-    + '<p class="sub">Worked out from the visitor\'s timezone, so it is approximate. '
-    + 'Someone using a VPN or travelling will show where they are, not where they live.</p>'
+    + '<p class="sub">Based on the visitor\'s network connection. A VPN or someone '
+    + 'travelling will show where they are connecting from, not where they live.</p>'
     + countries + '</div>'
 
     + '<div class="split">'
