@@ -285,6 +285,35 @@ select.inp{appearance:none;cursor:pointer;padding-right:32px;background-image:no
   border-top:1px solid var(--line);padding:13px 0;margin-top:22px;display:flex;gap:10px;justify-content:flex-end;
 }
 .err{background:#fef2f2;border:1px solid #fecaca;color:#b91c1c;padding:11px 14px;border-radius:10px;font-size:13.5px;margin-bottom:16px}
+
+/* ---------- Analytics ---------- */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:22px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:16px 18px;box-shadow:var(--shadow-sm)}
+.stat b{display:block;font-size:26px;font-weight:800;letter-spacing:-.04em;line-height:1.1}
+.stat span{font-size:12.5px;color:var(--ink-3);font-weight:500}
+.stat.hi b{color:var(--accent)}
+.chart{display:flex;align-items:flex-end;gap:3px;height:130px;padding:10px 0 0}
+.bar{flex:1;min-width:3px;background:var(--accent);border-radius:3px 3px 0 0;opacity:.85;position:relative;transition:.15s}
+.bar:hover{opacity:1}
+.bar.zero{background:var(--line);min-height:2px}
+.chartx{display:flex;justify-content:space-between;font-size:11.5px;color:var(--ink-3);margin-top:7px;font-weight:500}
+.tbl{width:100%;border-collapse:collapse;font-size:13.5px}
+.tbl th{text-align:left;font-size:11.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--ink-3);padding:0 10px 9px 0;font-weight:700}
+.tbl td{padding:11px 10px 11px 0;border-top:1px solid var(--line-2);vertical-align:middle}
+.tbl td.n{font-weight:700;font-variant-numeric:tabular-nums}
+.tbl tr:first-child td{border-top:none}
+.tbl .nm{font-weight:600}
+.tbl .sub2{font-size:12px;color:var(--ink-3);font-weight:400}
+.split{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.srcrow{display:flex;align-items:center;gap:10px;margin-bottom:9px;font-size:13.5px}
+.srcbar{flex:1;height:7px;background:var(--line-2);border-radius:4px;overflow:hidden}
+.srcbar div{height:100%;background:var(--accent);border-radius:4px}
+.srcn{font-weight:700;font-variant-numeric:tabular-nums;min-width:28px;text-align:right}
+.srclbl{min-width:78px;text-transform:capitalize}
+.rangebtns{display:flex;gap:5px;background:var(--line-2);padding:4px;border-radius:10px;width:fit-content;margin-bottom:20px}
+.rangebtns button{padding:7px 14px;border-radius:7px;font-size:13px;font-weight:600;color:var(--ink-2)}
+.rangebtns button.on{background:var(--surface);color:var(--ink);box-shadow:var(--shadow-sm)}
+@media(max-width:700px){ .split{grid-template-columns:1fr} }
 .prog{height:4px;background:var(--line-2);border-radius:3px;overflow:hidden;margin-top:12px}
 .prog div{height:100%;background:var(--accent);transition:.25s;border-radius:3px}
 
@@ -318,11 +347,11 @@ select.inp{appearance:none;cursor:pointer;padding-right:32px;background-image:no
 
 <script>
 /* ============================================================
-   MY PROPERTIES  v1.3
+   MY PROPERTIES  v1.4
    Single file. No external SDKs. Supabase via native fetch.
    ============================================================ */
 
-var VERSION  = 'v1.3';
+var VERSION  = 'v1.4';
 var SB_URL   = 'https://fdhsextgmelfnfbkrynl.supabase.co';
 var SB_KEY   = 'sb_publishable_aCTX2tjBKIBjaGmAuqIepQ_OIdbOgv-';
 var BUCKET   = 'flat-photos';
@@ -542,6 +571,60 @@ async function deletePhotos(paths){
   } catch(e){ /* orphaned files are harmless */ }
 }
 
+/* ============ VISITOR TRACKING ============
+   No cookies, no personal data, no third party. A random id is kept in the
+   browser so repeat visits in one session are not counted as new people.
+   Owner visits are never counted. Every call fails silently on purpose:
+   analytics must never break the site for a buyer.
+   ======================================== */
+var SID_KEY = 'flats_sid';
+function sessionId(){
+  var s = '';
+  try { s = localStorage.getItem(SID_KEY) || ''; } catch(e){ return 'nostorage'; }
+  if (!s) { s = uuid(); try { localStorage.setItem(SID_KEY, s); } catch(e){} }
+  return s;
+}
+function detectSource(){
+  var q = location.search || '';
+  var m = q.match(/[?&](?:utm_source|src)=([^&]+)/i);
+  if (m) return decodeURIComponent(m[1]).toLowerCase().slice(0, 40);
+  var r = '';
+  try { r = document.referrer || ''; } catch(e){}
+  if (!r) return 'direct';
+  var h = r.toLowerCase();
+  if (h.indexOf('whatsapp') > -1 || h.indexOf('l.wl.co') > -1) return 'whatsapp';
+  if (h.indexOf('instagram') > -1) return 'instagram';
+  if (h.indexOf('facebook') > -1 || h.indexOf('fb.') > -1) return 'facebook';
+  if (h.indexOf('google') > -1) return 'google';
+  if (h.indexOf('t.co') > -1 || h.indexOf('twitter') > -1 || h.indexOf('//x.com') > -1) return 'twitter';
+  if (h.indexOf('linkedin') > -1) return 'linkedin';
+  if (h.indexOf('tiktok') > -1) return 'tiktok';
+  if (h.indexOf(location.hostname) > -1) return 'direct';
+  try { return new URL(r).hostname.replace(/^www\./,'').slice(0, 40); } catch(e){ return 'other'; }
+}
+var SOURCE = detectSource();
+var DEVICE = (/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 768) ? 'mobile' : 'desktop';
+var trackedFlats = {};
+
+function track(type, flatId){
+  if (loggedIn()) return;                       // never count the owner
+  if (location.hash.indexOf('#admin') === 0) return;
+  try {
+    fetch(SB_URL + '/rest/v1/events', {
+      method: 'POST',
+      headers: { 'apikey': SB_KEY, 'Content-Type':'application/json', 'Prefer':'return=minimal' },
+      body: JSON.stringify({
+        type: type,
+        flat_id: flatId || null,
+        session_id: sessionId(),
+        source: SOURCE,
+        device: DEVICE
+      }),
+      keepalive: true
+    }).catch(function(){});
+  } catch(e){}
+}
+
 /* ============ DATA ============ */
 async function loadAll(){
   var s = await rest('settings?select=*&id=eq.1', {}, false);
@@ -574,7 +657,10 @@ async function route(){
   if (h.indexOf('#flat/') === 0) {
     var id = h.slice(6);
     for (var i = 0; i < FLATS.length; i++) {
-      if (FLATS[i].id === id) return renderDetail(FLATS[i]);
+      if (FLATS[i].id === id) {
+        if (!trackedFlats[id]) { trackedFlats[id] = 1; track('view_flat', id); }
+        return renderDetail(FLATS[i]);
+      }
     }
   }
   renderList();
@@ -635,6 +721,7 @@ function renderList(){
         : '<div class="empty">' + I.home + '<h3>No properties yet</h3><p>Listings will appear here once added.</p></div>')
     + '</div>';
   attachCards();
+  wireContactTracking(null);
 }
 function attachCards(){
   var els = document.querySelectorAll('.card');
@@ -710,6 +797,7 @@ function renderDetail(f){
   $('back').onclick = function(){ if (history.length > 1) history.back(); else location.hash = ''; };
   $('share').onclick = async function(){
     var url = pageUrl() + '#flat/' + f.id;
+    track('share', f.id);
     if (navigator.share) {
       try { await navigator.share({ title: f.title || 'Property', text: locLine(f), url: url }); } catch(e){}
     } else if (navigator.clipboard) {
@@ -720,7 +808,20 @@ function renderDetail(f){
   for (var j = 0; j < gs.length; j++) {
     gs[j].onclick = function(){ openLb(ordered, Number(this.getAttribute('data-i'))); };
   }
+  wireContactTracking(f.id);
   window.scrollTo(0,0);
+}
+
+/* count taps on the WhatsApp and Call buttons, wherever they appear */
+function wireContactTracking(flatId){
+  var els = document.querySelectorAll('a.btn-wa, a.btn-call');
+  for (var i = 0; i < els.length; i++) {
+    (function(el){
+      el.addEventListener('click', function(){
+        track(el.className.indexOf('btn-wa') > -1 ? 'click_whatsapp' : 'click_call', flatId || null);
+      });
+    })(els[i]);
+  }
 }
 
 /* ============ LIGHTBOX ============ */
@@ -814,6 +915,7 @@ function renderDash(){
   app.innerHTML = '<div class="admin">' + adminHeader() + '<div class="wrap" style="padding-top:26px">'
     + '<div class="tabs">'
     + '<button class="tab ' + (adminTab === 'flats' ? 'on' : '') + '" data-t="flats">Flats (' + FLATS.length + ')</button>'
+    + '<button class="tab ' + (adminTab === 'visitors' ? 'on' : '') + '" data-t="visitors">Visitors</button>'
     + '<button class="tab ' + (adminTab === 'settings' ? 'on' : '') + '" data-t="settings">Contact and settings</button>'
     + '</div><div id="tabbody"></div></div></div>';
   bindAdminHeader();
@@ -821,7 +923,100 @@ function renderDash(){
   for (var i = 0; i < ts.length; i++) {
     ts[i].onclick = function(){ adminTab = this.getAttribute('data-t'); renderDash(); };
   }
-  if (adminTab === 'flats') tabFlats(); else tabSettings();
+  if (adminTab === 'flats') tabFlats();
+  else if (adminTab === 'visitors') tabVisitors();
+  else tabSettings();
+}
+
+/* ============ VISITORS TAB ============ */
+var anRange = 30;
+
+async function tabVisitors(){
+  $('tabbody').innerHTML =
+      '<div class="rangebtns" id="anrange">'
+    + [7,30,90].map(function(d){
+        return '<button class="' + (anRange === d ? 'on' : '') + '" data-d="' + d + '">Last ' + d + ' days</button>';
+      }).join('')
+    + '</div><div id="anbody" style="color:var(--ink-3);font-size:14px">Loading...</div>';
+
+  bindAll('#anrange button', function(b){ anRange = Number(b.getAttribute('data-d')); tabVisitors(); });
+
+  var r = await api('/rest/v1/rpc/analytics_summary', { method:'POST', body:{ days: anRange } }, true);
+  if (r.error) { $('anbody').innerHTML = '<div class="err">' + esc(r.error) + '</div>'; return; }
+  drawVisitors(r.data);
+}
+
+function drawVisitors(d){
+  var t = d.totals || {};
+  var days = d.by_day || [];
+  var maxDay = 1;
+  days.forEach(function(x){ if (Number(x.views) > maxDay) maxDay = Number(x.views); });
+
+  var noData = !Number(t.visits) && !Number(t.flat_views);
+
+  var chart = '<div class="chart">' + days.map(function(x){
+    var v = Number(x.views);
+    var h = v ? Math.max(4, Math.round(v / maxDay * 100)) : 0;
+    return '<div class="bar' + (v ? '' : ' zero') + '" style="height:' + (v ? h + '%' : '2px')
+         + '" title="' + x.day + ': ' + v + ' view' + (v === 1 ? '' : 's') + '"></div>';
+  }).join('') + '</div>'
+  + (days.length ? '<div class="chartx"><span>' + esc(days[0].day) + '</span><span>' + esc(days[days.length-1].day) + '</span></div>' : '');
+
+  var flatRows = (d.by_flat || []).map(function(f){
+    return '<tr><td><div class="nm">' + esc(f.title || 'Untitled') + '</div>'
+      + '<div class="sub2">' + esc([f.building, f.area].filter(Boolean).join(', ') || 'no location') + '</div></td>'
+      + '<td class="n">' + f.views + '</td>'
+      + '<td class="n" style="color:var(--wa)">' + f.whatsapp + '</td>'
+      + '<td class="n">' + f.calls + '</td></tr>';
+  }).join('');
+
+  var srcTotal = 0;
+  (d.by_source || []).forEach(function(s){ srcTotal += Number(s.n); });
+  var sources = (d.by_source || []).map(function(s){
+    var pct = srcTotal ? Math.round(s.n / srcTotal * 100) : 0;
+    return '<div class="srcrow"><span class="srclbl">' + esc(s.source) + '</span>'
+      + '<span class="srcbar"><div style="width:' + pct + '%"></div></span>'
+      + '<span class="srcn">' + s.n + '</span></div>';
+  }).join('') || '<div style="color:var(--ink-3);font-size:13px">Nothing yet</div>';
+
+  var devTotal = 0;
+  (d.by_device || []).forEach(function(s){ devTotal += Number(s.n); });
+  var devices = (d.by_device || []).map(function(s){
+    var pct = devTotal ? Math.round(s.n / devTotal * 100) : 0;
+    return '<div class="srcrow"><span class="srclbl">' + esc(s.device) + '</span>'
+      + '<span class="srcbar"><div style="width:' + pct + '%"></div></span>'
+      + '<span class="srcn">' + pct + '%</span></div>';
+  }).join('') || '<div style="color:var(--ink-3);font-size:13px">Nothing yet</div>';
+
+  $('anbody').innerHTML =
+      '<div class="stats">'
+    + '<div class="stat"><b>' + (t.people || 0) + '</b><span>People</span></div>'
+    + '<div class="stat"><b>' + (t.visits || 0) + '</b><span>Visits</span></div>'
+    + '<div class="stat"><b>' + (t.flat_views || 0) + '</b><span>Flats opened</span></div>'
+    + '<div class="stat hi"><b>' + (t.whatsapp || 0) + '</b><span>WhatsApp taps</span></div>'
+    + '<div class="stat hi"><b>' + (t.calls || 0) + '</b><span>Call taps</span></div>'
+    + '<div class="stat"><b>' + (t.shares || 0) + '</b><span>Shares</span></div>'
+    + '</div>'
+
+    + (noData
+        ? '<div class="panel"><h3>No visits recorded yet</h3><p class="sub" style="margin:0">'
+          + 'Numbers appear here once someone opens the link. Your own visits are never counted, '
+          + 'so open the site in a private window if you want to test it.</p></div>'
+        : '')
+
+    + '<div class="panel"><h3>Views per day</h3><p class="sub">Site visits and flat views over the last ' + d.days + ' days.</p>'
+    + chart + '</div>'
+
+    + '<div class="panel"><h3>Interest by flat</h3><p class="sub">Which listings people actually open, and who reached out.</p>'
+    + (flatRows
+        ? '<table class="tbl"><tr><th>Flat</th><th>Opened</th><th>WhatsApp</th><th>Calls</th></tr>' + flatRows + '</table>'
+        : '<div style="color:var(--ink-3);font-size:13px">No flats yet</div>')
+    + '</div>'
+
+    + '<div class="split">'
+    + '<div class="panel"><h3>Where they came from</h3><p class="sub">Based on the last ' + d.days + ' days.</p>' + sources + '</div>'
+    + '<div class="panel"><h3>Phone or computer</h3><p class="sub">Share of visits.</p>' + devices + '</div>'
+    + '</div>';
 }
 function tabFlats(){
   $('tabbody').innerHTML =
@@ -1520,6 +1715,7 @@ function tabSettings(){
     + '</div></div>';
   loadAll().then(function(){
     route();
+    if (location.hash.indexOf('#admin') !== 0) track('visit', null);
   }).catch(function(e){
     console.error(e);
     app.innerHTML = '<div class="wrap"><div class="empty">' + I.home
