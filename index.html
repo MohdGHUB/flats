@@ -117,6 +117,19 @@ header.site{
 .chip{padding:4px 9px;border-radius:6px;background:var(--accent-soft);color:var(--accent);font-size:11.5px;font-weight:600}
 .chip.more{background:var(--line-2);color:var(--ink-3)}
 
+/* ---------- Rented highlight ---------- */
+.rentstrip{
+  display:flex;justify-content:space-between;align-items:center;gap:10px;
+  padding:9px 16px;font-size:13px;font-weight:700;color:#3d2b00;
+  background:linear-gradient(110deg,#c9971a 0%,#e6b422 35%,#fff3c4 50%,#e6b422 65%,#c9971a 100%);
+  background-size:200% 100%;animation:rentshine 2.8s linear infinite;
+}
+.rentstrip span{display:flex;align-items:center;gap:6px}
+.rentstrip .ry{white-space:nowrap}
+.pricebox .rentstrip{border-radius:10px;margin-bottom:16px;padding:10px 13px}
+@keyframes rentshine{0%{background-position:200% 0}100%{background-position:-200% 0}}
+@media(prefers-reduced-motion:reduce){ .rentstrip{animation:none} }
+
 .empty{text-align:center;padding:80px 20px;color:var(--ink-3)}
 .empty svg{margin:0 auto 16px;color:#c9cdd6}
 .empty h3{margin:0 0 6px;color:var(--ink-2);font-size:16px;font-weight:600}
@@ -347,11 +360,11 @@ select.inp{appearance:none;cursor:pointer;padding-right:32px;background-image:no
 
 <script>
 /* ============================================================
-   MY PROPERTIES  v1.6
+   MY PROPERTIES  v1.7
    Single file. No external SDKs. Supabase via native fetch.
    ============================================================ */
 
-var VERSION  = 'v1.6';
+var VERSION  = 'v1.7';
 var SB_URL   = 'https://fdhsextgmelfnfbkrynl.supabase.co';
 var SB_KEY   = 'sb_publishable_aCTX2tjBKIBjaGmAuqIepQ_OIdbOgv-';
 var BUCKET   = 'flat-photos';
@@ -391,6 +404,7 @@ var FACILITIES = ['Swimming pool','Gym','Games room','Covered parking','24/7 sec
 var I = {
   wa:'<svg class="ico" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.174.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884a9.82 9.82 0 0 1 6.99 2.896 9.82 9.82 0 0 1 2.893 6.994c-.003 5.45-4.437 9.886-9.887 9.886m8.413-18.297A11.82 11.82 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.88 11.88 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.82 11.82 0 0 0-3.48-8.413"/></svg>',
   phone:'<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>',
+  key:'<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.5" cy="15.5" r="4.5"/><path d="M10.7 12.3 20 3"/><path d="m16 7 3 3"/></svg>',
   pin:'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>',
   bed:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4v16"/><path d="M2 8h18a2 2 0 0 1 2 2v10"/><path d="M2 17h20"/><path d="M6 8v9"/></svg>',
   bath:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6 6.5 3.5a1.5 1.5 0 0 0-3 3L6 9"/><path d="M2 12h20"/><path d="M4 12v3a4 4 0 0 0 4 4h8a4 4 0 0 0 4-4v-3"/><path d="M7 19v2"/><path d="M17 19v2"/></svg>',
@@ -435,6 +449,19 @@ function money(v, cur){
   var n = Number(v);
   if (!isFinite(n)) return 'Price on request';
   return (SYM[cur] || cur || '') + ' ' + n.toLocaleString('en-US');
+}
+function rentYield(price, rent){
+  var p = Number(price), r = Number(rent);
+  if (!(p > 0) || !(r > 0)) return null;
+  return (r * 12 / p * 100).toFixed(1);
+}
+function rentStrip(f){
+  if (!f.is_rented || f.listing_type === 'rent' || f.status === 'sold') return '';
+  var hasRent = Number(f.rent_amount) > 0;
+  var y = f.show_yield === false ? null : rentYield(f.price, f.rent_amount);
+  return '<div class="rentstrip"><span>' + I.key
+    + (hasRent ? 'Rented, ' + money(f.rent_amount, f.currency) + ' / month' : 'Currently rented') + '</span>'
+    + (y ? '<span class="ry">' + y + '% yield</span>' : '') + '</div>';
 }
 function locLine(f){
   return [f.building, f.area, f.country].filter(Boolean).join(', ');
@@ -751,6 +778,7 @@ function card(f){
     +   '<span class="badge">For ' + (f.listing_type === 'rent' ? 'rent' : 'sale') + '</span></div>'
     +   (n > 1 ? '<div class="photo-count">' + I.cam + ' ' + n + '</div>' : '')
     + '</div>'
+    + rentStrip(f)
     + '<div class="card-body">'
     +   '<div class="card-price">' + money(f.price, f.currency) + (f.price_note ? ' <small>' + esc(f.price_note) + '</small>' : '') + '</div>'
     +   (f.title ? '<div class="card-title">' + esc(f.title) + '</div>' : '')
@@ -835,6 +863,7 @@ function renderDetail(f){
     +   (SETTINGS.about ? '<div class="sec"><h3>About</h3><p>' + esc(SETTINGS.about) + '</p></div>' : '')
     + '</div>'
     + '<div class="aside"><div class="pricebox">'
+    +   rentStrip(f)
     +   '<div class="p">' + money(f.price, f.currency) + '</div>'
     +   '<div class="pn">' + esc(f.price_note || (f.listing_type === 'rent' ? 'For rent' : 'For sale'))
     +     ' &middot; <b style="color:var(--accent)">' + statusLabel + '</b></div>'
@@ -1162,7 +1191,8 @@ function blank(){
     price:'', currency: SETTINGS.default_currency || 'BHD', price_note:'',
     bedrooms:'', bathrooms:'', size_value:'', size_unit:'sqm', floor_label:'',
     features:[], facilities:[], description:'', map_url:'',
-    photos:[], cover_index:0, published:true, sort_order:0
+    photos:[], cover_index:0, published:true, sort_order:0,
+    is_rented:false, rent_amount:'', show_yield:true
   };
 }
 function opts(list, sel){
@@ -1205,6 +1235,17 @@ function renderEditor(){
     + '<div class="field"><label>Price note (optional)</label><input class="inp" id="price_note" value="' + esc(f.price_note)
     + '" placeholder="e.g. negotiable, per year, incl. service charge"></div></div>'
 
+    + '<div class="panel"><h3>Rented to a tenant</h3><p class="sub">For a flat on sale that already has a tenant. Adds a gold strip to the listing so buyers see the income.</p>'
+    + '<div class="field"><label>Currently rented</label><select class="inp" id="is_rented">'
+    +   opts([['false','No'],['true','Yes, show the gold strip']], f.is_rented ? 'true' : 'false') + '</select></div>'
+    + '<div id="rentbox"><div class="row row-2">'
+    + '<div class="field"><label>Monthly rent</label><input class="inp" id="rent_amount" type="number" inputmode="numeric" min="0" value="'
+    +   (f.rent_amount === null || f.rent_amount === undefined ? '' : f.rent_amount) + '" placeholder="e.g. 300">'
+    + '<div class="hint">In the same currency as the price.</div></div>'
+    + '<div class="field"><label>Show yield</label><select class="inp" id="show_yield">'
+    +   opts([['true','Yes'],['false','No, show the rent only']], f.show_yield === false ? 'false' : 'true') + '</select></div>'
+    + '</div><div class="hint" id="rentprev" style="font-size:12.5px;color:var(--ink-2)"></div></div></div>'
+
     + '<div class="panel"><h3>Size and layout</h3>'
     + '<div class="row row-2">'
     + '<div class="field"><label>Bedrooms</label><input class="inp" id="bedrooms" type="number" min="0" value="'
@@ -1244,6 +1285,10 @@ function renderEditor(){
   bindAdminHeader(); drawOpts(); drawThumbs(); wireUpload();
   $('cancel').onclick = $('cancel2').onclick = function(){ editing = null; renderDash(); };
   $('save').onclick = save;
+  ['is_rented','rent_amount','show_yield','price','currency','listing_type','status'].forEach(function(id){
+    $(id).oninput = $(id).onchange = rentPreview;
+  });
+  rentPreview();
   $('featadd').onclick = function(){ addCustom('featnew','features'); };
   $('facadd').onclick  = function(){ addCustom('facnew','facilities'); };
   $('featnew').onkeydown = function(e){ if (e.key === 'Enter'){ e.preventDefault(); addCustom('featnew','features'); } };
@@ -1355,6 +1400,22 @@ async function upload(files){
   setTimeout(function(){ box.className = 'hide'; bar.style.width = '0%'; }, 2400);
   if (failed) toast(lastErr || (failed + ' photos could not be uploaded'), true);
 }
+function rentPreview(){
+  var on = $('is_rented').value === 'true';
+  $('rentbox').className = on ? '' : 'hide';
+  if (!on) return;
+  var msg;
+  if ($('listing_type').value === 'rent') msg = 'The strip is only shown on flats listed for sale.';
+  else if ($('status').value === 'sold') msg = 'The strip is hidden while the flat is marked Sold.';
+  else {
+    var rent = $('rent_amount').value.trim(), cur = $('currency').value;
+    var y = $('show_yield').value === 'true' ? rentYield($('price').value, rent) : null;
+    msg = 'Buyers will see: ' + (Number(rent) > 0 ? 'Rented, ' + money(rent, cur) + ' / month' : 'Currently rented')
+      + (y ? ' and ' + y + '% yield (yearly rent divided by the price).' : '.')
+      + ($('show_yield').value === 'true' && !y ? ' Enter both a price and a rent to show the yield.' : '');
+  }
+  $('rentprev').textContent = msg;
+}
 function numOrNull(id){
   var v = $(id).value.trim();
   return v === '' ? null : Number(v);
@@ -1373,7 +1434,9 @@ async function save(){
     features:f.features, facilities:f.facilities,
     description:$('description').value.trim(), map_url:$('map_url').value.trim(),
     photos:f.photos, cover_index:f.cover_index || 0,
-    published:$('published').value === 'true'
+    published:$('published').value === 'true',
+    is_rented:$('is_rented').value === 'true', rent_amount:numOrNull('rent_amount'),
+    show_yield:$('show_yield').value === 'true'
   };
   if (!payload.title && !payload.area && !payload.building) {
     return toast('Add at least a title or a location', true);
@@ -1401,7 +1464,8 @@ async function save(){
 /* ============ BACKUP AND RESTORE ============ */
 var FLAT_KEYS = ['id','created_at','title','country','area','building','listing_type','status',
   'price','currency','price_note','bedrooms','bathrooms','size_value','size_unit','floor_label',
-  'features','facilities','description','map_url','photos','cover_index','sort_order','published'];
+  'features','facilities','description','map_url','photos','cover_index','sort_order','published',
+  'is_rented','rent_amount','show_yield'];
 var SETTING_KEYS = ['site_title','site_tagline','owner_name','whatsapp_number','phone_number',
   'email','default_currency','accent_color','about'];
 
@@ -1676,6 +1740,9 @@ async function restoreBackup(file){
     if (!(r.photos     instanceof Array)) r.photos     = [];
     if (r.cover_index === undefined || r.cover_index === null) r.cover_index = 0;
     if (r.published === undefined) r.published = true;
+    if (r.is_rented === undefined || r.is_rented === null) r.is_rented = false;
+    if (r.rent_amount === undefined) r.rent_amount = null;
+    if (r.show_yield === undefined || r.show_yield === null) r.show_yield = true;
     return r;
   });
 
